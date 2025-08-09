@@ -1,116 +1,44 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  username  String   @unique
-  firstName String?
-  lastName  String?
-  avatar    String?
-  bio       String?
-  
-  // Authentication
-  password    String?
-  googleId    String?  @unique
-  isVerified  Boolean  @default(false)
-  
-  // Relationships
-  recipes Recipe[]
-  
-  // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("users")
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model recipes {
+  id                   String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  author_id            String        @db.Uuid
+  title                String        @db.VarChar
+  description          String
+  ingredients          String[]      @db.VarChar
+  instructions         String[]      @db.VarChar
+  prep_time_minutes    Int           @db.SmallInt
+  cooking_time_minutes Int           @db.SmallInt
+  serving_size         Int           @db.SmallInt
+  image_url            String?
+  is_published         Boolean       @default(false)
+  created_at           DateTime      @default(now()) @db.Timestamptz(6)
+  updated_at           DateTime      @default(now()) @db.Timestamp(6)
+  users_cooking        users_cooking @relation(fields: [author_id], references: [id], onDelete: Cascade)
 }
 
-model Recipe {
-  id          String   @id @default(cuid())
-  title       String
-  description String?
-  instructions Json    // Array of step objects
-  prepTime    Int?     // in minutes
-  cookTime    Int?     // in minutes
-  servings    Int?
-  difficulty  Difficulty @default(MEDIUM)
-  image       String?
-  
-  // Relationships
-  authorId    String
-  author      User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  ingredients RecipeIngredient[]
-  categories  RecipeCategory[]
-  
-  // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("recipes")
-}
-
-model Ingredient {
-  id      String @id @default(cuid())
-  name    String @unique
-  unit    String? // default unit for this ingredient
-  
-  // Relationships
-  recipes RecipeIngredient[]
-  
-  @@map("ingredients")
-}
-
-model RecipeIngredient {
-  id       String @id @default(cuid())
-  quantity String // e.g., "2", "1/2", "1-2"
-  unit     String? // e.g., "cups", "tbsp", "oz"
-  notes    String? // e.g., "chopped", "optional"
-  
-  // Relationships
-  recipeId     String
-  ingredientId String
-  recipe       Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-  ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
-  
-  @@unique([recipeId, ingredientId])
-  @@map("recipe_ingredients")
-}
-
-model Category {
-  id          String @id @default(cuid())
-  name        String @unique
-  description String?
-  
-  // Relationships
-  recipes RecipeCategory[]
-  
-  @@map("categories")
-}
-
-model RecipeCategory {
-  id         String @id @default(cuid())
-  
-  // Relationships
-  recipeId   String
-  categoryId String
-  recipe     Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-  category   Category @relation(fields: [categoryId], references: [id])
-  
-  @@unique([recipeId, categoryId])
-  @@map("recipe_categories")
-}
-
-enum Difficulty {
-  EASY
-  MEDIUM
-  HARD
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model users_cooking {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email          String    @unique @db.VarChar
+  username       String?   @unique @db.VarChar
+  password_hash  String?   @db.VarChar
+  google_id      String?   @unique @db.VarChar
+  email_verified Boolean   @default(false)
+  display_name   String    @db.VarChar
+  avatar_url     String?   @db.VarChar
+  created_at     DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at     DateTime  @default(now()) @db.Timestamp(6)
+  recipes        recipes[]
 }
