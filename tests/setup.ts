@@ -20,14 +20,6 @@ afterAll(async () => {
   await prisma.$disconnect();
 });
 
-beforeEach(async () => {
-  // Clean up before each test
-  await prisma.recipeCategory.deleteMany();
-  await prisma.recipeIngredient.deleteMany();
-  await prisma.recipe.deleteMany();
-  await prisma.user.deleteMany();
-  await prisma.category.deleteMany();
-  await prisma.ingredient.deleteMany();
-});
+beforeEach(async () => {});
 
 export { prisma };
