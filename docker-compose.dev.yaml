@@ -12,21 +12,22 @@ services:
       - '3000:3000'
     environment:
       NODE_ENV: development
-      PORT: 3000
-      # Supabase Database URL (replace with your Supabase connection string)
-      DATABASE_URL: postgresql://postgres:[password]@db.[project-ref].supabase.co:5432/postgres
-      JWT_SECRET: dev-jwt-secret-change-me
-      JWT_EXPIRES_IN: 7d
-      GOOGLE_CLIENT_ID: your-google-client-id
-      GOOGLE_CLIENT_SECRET: your-google-client-secret
-      CLOUDINARY_CLOUD_NAME: your-cloudinary-cloud-name
-      CLOUDINARY_API_KEY: your-cloudinary-api-key
-      CLOUDINARY_API_SECRET: your-cloudinary-api-secret
-      CORS_ORIGIN: http://localhost:3000
-      # Supabase specific
-      SUPABASE_URL: https://[project-ref].supabase.co
-      SUPABASE_ANON_KEY: your-supabase-anon-key
-      SUPABASE_SERVICE_KEY: your-supabase-service-key
+      PORT: ${PORT:-3000}
+      DATABASE_URL: ${DATABASE_URL}
+      DIRECT_URL: ${DIRECT_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      GOOGLE_CALLBACK_URL: ${GOOGLE_CALLBACK_URL}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      AWS_S3_BUCKET_NAME: ${AWS_S3_BUCKET_NAME}
+      AWS_S3_BUCKET_URL: ${AWS_S3_BUCKET_URL}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_SERVICE_KEY: ${SUPABASE_SERVICE_KEY}
     volumes:
       # Mount source code for hot reload
       - ./src:/app/src:ro
@@ -35,19 +36,24 @@ services:
       - ./tsconfig.json:/app/tsconfig.json:ro
       # Exclude node_modules from host (use container's version)
       - /app/node_modules
-      # Mount uploads directory
-      - ./uploads:/app/uploads
+      # Using S3 for file storage - no local upload mount needed
     networks:
       - cooking-network
     # Add health check for development
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      test:
+        [
+          'CMD',
+          'wget',
+          '--no-verbose',
+          '--tries=1',
+          '--spider',
+          'http://localhost:3000/health',
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
-
-
 
 networks:
   cooking-network:
