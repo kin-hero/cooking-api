@@ -1,0 +1,116 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  username  String   @unique
+  firstName String?
+  lastName  String?
+  avatar    String?
+  bio       String?
+  
+  // Authentication
+  password    String?
+  googleId    String?  @unique
+  isVerified  Boolean  @default(false)
+  
+  // Relationships
+  recipes Recipe[]
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Recipe {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  instructions Json    // Array of step objects
+  prepTime    Int?     // in minutes
+  cookTime    Int?     // in minutes
+  servings    Int?
+  difficulty  Difficulty @default(MEDIUM)
+  image       String?
+  
+  // Relationships
+  authorId    String
+  author      User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  ingredients RecipeIngredient[]
+  categories  RecipeCategory[]
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("recipes")
+}
+
+model Ingredient {
+  id      String @id @default(cuid())
+  name    String @unique
+  unit    String? // default unit for this ingredient
+  
+  // Relationships
+  recipes RecipeIngredient[]
+  
+  @@map("ingredients")
+}
+
+model RecipeIngredient {
+  id       String @id @default(cuid())
+  quantity String // e.g., "2", "1/2", "1-2"
+  unit     String? // e.g., "cups", "tbsp", "oz"
+  notes    String? // e.g., "chopped", "optional"
+  
+  // Relationships
+  recipeId     String
+  ingredientId String
+  recipe       Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
+  
+  @@unique([recipeId, ingredientId])
+  @@map("recipe_ingredients")
+}
+
+model Category {
+  id          String @id @default(cuid())
+  name        String @unique
+  description String?
+  
+  // Relationships
+  recipes RecipeCategory[]
+  
+  @@map("categories")
+}
+
+model RecipeCategory {
+  id         String @id @default(cuid())
+  
+  // Relationships
+  recipeId   String
+  categoryId String
+  recipe     Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id])
+  
+  @@unique([recipeId, categoryId])
+  @@map("recipe_categories")
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
