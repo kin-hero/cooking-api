@@ -3,7 +3,9 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient({
   datasources: {
     db: {
-      url: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/cooking_test',
+      url:
+        String(process.env.DATABASE_URL) ||
+        'postgresql://postgres:postgres@localhost:5432/cooking_test',
     },
   },
 });
