@@ -9,7 +9,11 @@ interface RateLimitStore {
 
 const store: RateLimitStore = {};
 
-export const rateLimiter = (req: Request, res: Response, next: NextFunction): void => {
+export const rateLimiter = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
   const clientIP = req.ip || req.connection.remoteAddress || 'unknown';
   const now = Date.now();
   const windowMs = 15 * 60 * 1000; // 15 minutes
@@ -44,7 +48,10 @@ export const rateLimiter = (req: Request, res: Response, next: NextFunction): vo
   // Set rate limit headers
   res.set({
     'X-RateLimit-Limit': maxRequests.toString(),
-    'X-RateLimit-Remaining': Math.max(0, maxRequests - clientData.count).toString(),
+    'X-RateLimit-Remaining': Math.max(
+      0,
+      maxRequests - clientData.count
+    ).toString(),
     'X-RateLimit-Reset': new Date(clientData.resetTime).toISOString(),
   });
 

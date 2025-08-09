@@ -11,7 +11,6 @@ import recipeRoutes from '@/routes/recipes';
 import userRoutes from '@/routes/users';
 import categoryRoutes from '@/routes/categories';
 
-
 // Load environment variables
 dotenv.config();
 
@@ -52,7 +51,7 @@ const startServer = async () => {
     });
 
     // Health check endpoint
-    fastify.get('/health', async (request, reply) => {
+    fastify.get('/health', async (_request, _reply) => {
       return {
         success: true,
         message: 'Cooking API is running',
@@ -89,9 +88,10 @@ const startServer = async () => {
       }
 
       const statusCode = error.statusCode || 500;
-      const message = process.env.NODE_ENV === 'production' && statusCode >= 500
-        ? 'Internal Server Error'
-        : error.message;
+      const message =
+        process.env.NODE_ENV === 'production' && statusCode >= 500
+          ? 'Internal Server Error'
+          : error.message;
 
       reply.code(statusCode).send({
         success: false,
@@ -101,15 +101,14 @@ const startServer = async () => {
 
     // Start server
     const PORT = Number(process.env.PORT) || 3000;
-    const address = await fastify.listen({ 
-      port: PORT, 
-      host: '0.0.0.0' 
+    const address = await fastify.listen({
+      port: PORT,
+      host: '0.0.0.0',
     });
 
     console.log(`🚀 Cooking API server running at ${address}`);
     console.log(`📖 Health check: ${address}/health`);
     console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
-
   } catch (err) {
     fastify.log.error(err);
     process.exit(1);

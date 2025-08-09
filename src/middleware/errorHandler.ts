@@ -18,46 +18,41 @@ export const errorHandler = (
   err: Error,
   req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ): void => {
-  let error = { ...err } as any;
-  error.message = err.message;
-
   // Log error
   console.error(err);
 
-  // Prisma error handling
-  if (err.name === 'PrismaClientKnownRequestError') {
-    const message = 'Database error occurred';
-    error = new AppError(message, 400);
-  }
+  let statusCode = 500;
+  let message = 'Server Error';
 
-  // JWT error handling
-  if (err.name === 'JsonWebTokenError') {
-    const message = 'Invalid token';
-    error = new AppError(message, 401);
-  }
-
-  if (err.name === 'TokenExpiredError') {
-    const message = 'Token expired';
-    error = new AppError(message, 401);
-  }
-
-  // Validation error handling
-  if (err.name === 'ZodError') {
-    const message = 'Validation error';
-    error = new AppError(message, 400);
+  // Handle different error types
+  if (err instanceof AppError) {
+    statusCode = err.statusCode;
+    message = err.message;
+  } else if (err.name === 'PrismaClientKnownRequestError') {
+    statusCode = 400;
+    message = 'Database error occurred';
+  } else if (err.name === 'JsonWebTokenError') {
+    statusCode = 401;
+    message = 'Invalid token';
+  } else if (err.name === 'TokenExpiredError') {
+    statusCode = 401;
+    message = 'Token expired';
+  } else if (err.name === 'ZodError') {
+    statusCode = 400;
+    message = 'Validation error';
+  } else {
+    message = err.message || 'Server Error';
   }
 
   const response: ApiResponse = {
     success: false,
-    error: error.message || 'Server Error',
+    error: message,
   };
 
-  const statusCode = error.statusCode || 500;
-
   // Don't leak error details in production
-  if (process.env.NODE_ENV === 'production' && !error.isOperational) {
+  if (process.env.NODE_ENV === 'production' && statusCode >= 500) {
     response.error = 'Something went wrong';
   }
 
@@ -73,7 +68,9 @@ export const notFoundHandler = (req: Request, res: Response): void => {
   res.status(404).json(response);
 };
 
-export const catchAsync = (fn: Function) => {
+export const catchAsync = (
+  fn: (req: Request, res: Response, next: NextFunction) => Promise<void>
+) => {
   return (req: Request, res: Response, next: NextFunction) => {
     Promise.resolve(fn(req, res, next)).catch(next);
   };
