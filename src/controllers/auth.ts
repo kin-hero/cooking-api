@@ -23,9 +23,38 @@ export const registerUser = async (
         id: user.id,
         email: user.email,
         displayName: user.display_name,
-        emailVerified: user.email_verified,
         verificationToken: user.verification_token,
       },
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      return reply.status(400).send({
+        success: false,
+        error: error.message,
+      });
+    }
+    return reply.status(500).send({
+      success: false,
+      error: 'Internal server error',
+    });
+  }
+};
+
+export interface VerifyEmailQuery {
+  email: string;
+  token: string;
+}
+
+export const verifyUserEmail = async (
+  request: FastifyRequest<{ Querystring: VerifyEmailQuery }>,
+  reply: FastifyReply
+) => {
+  try {
+    const { email, token } = request.query;
+    await authService.verifyUserEmailFromToken(token, email);
+    return reply.status(201).send({
+      success: true,
+      message: "User's email address has been verified successfully",
     });
   } catch (error) {
     if (error instanceof Error) {
