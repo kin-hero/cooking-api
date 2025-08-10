@@ -92,7 +92,7 @@ export const loginUser = async (
     reply.setCookie('recipe_token_user', jwtToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: 'lax',
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
     });
 
