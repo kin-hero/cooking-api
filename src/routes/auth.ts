@@ -1,10 +1,13 @@
-import { FastifyPluginAsync } from 'fastify';
+import { FastifyPluginAsync, FastifyRequest } from 'fastify';
+import { registerUser, RegisterRequestBody } from '@/controllers/auth';
 
 const authRoutes: FastifyPluginAsync = async fastify => {
-  // Placeholder routes for authentication
-  fastify.post('/register', async (_request, _reply) => {
-    return { success: true, message: 'Register endpoint - TODO' };
-  });
+  fastify.post(
+    '/register',
+    async (request: FastifyRequest<{ Body: RegisterRequestBody }>, reply) => {
+      await registerUser(request, reply);
+    }
+  );
 
   fastify.post('/login', async (_request, _reply) => {
     return { success: true, message: 'Login endpoint - TODO' };
