@@ -6,23 +6,13 @@ module.exports = {
     project: './tsconfig.json',
   },
   plugins: ['@typescript-eslint', 'prettier'],
-  extends: [
-    'eslint:recommended',
-    'plugin:@typescript-eslint/recommended',
-    'prettier',
-  ],
+  extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'prettier'],
   root: true,
   env: {
     node: true,
     es6: true,
   },
-  ignorePatterns: [
-    'dist',
-    'node_modules',
-    '*.js',
-    'jest.config.js',
-    '.eslintrc.js',
-  ],
+  ignorePatterns: ['dist', 'node_modules', '*.js', 'jest.config.js', '.eslintrc.js'],
   rules: {
     // TypeScript specific rules
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
@@ -34,9 +24,6 @@ module.exports = {
     'no-console': 'off', // Allow console.log for server logging
     'prefer-const': 'error',
     'no-var': 'error',
-
-    // Prettier integration
-    'prettier/prettier': 'error',
   },
   overrides: [
     {
