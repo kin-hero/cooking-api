@@ -1,4 +1,9 @@
-import { createUser, findUserByEmail } from '@/repositories/auth';
+import {
+  createUser,
+  findUserByEmail,
+  getUserVerificationTokenExpiredAtTime,
+  verifyUserEmailAddress,
+} from '@/repositories/auth';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import dayjs from 'dayjs';
@@ -38,5 +43,26 @@ export class AuthService {
       tomorrow
     );
     return user;
+  }
+
+  async verifyUserEmailFromToken(token: string, email: string) {
+    if (!token) {
+      throw new Error('Verification Token is required');
+    }
+    const currentTime = dayjs().toDate();
+    const { emailFromDB, tokenTime } =
+      await getUserVerificationTokenExpiredAtTime(email);
+
+    if (!emailFromDB) {
+      throw new Error('This email address does not exist');
+    }
+    if (!tokenTime) {
+      throw new Error('This email has already been verified');
+    }
+    if (currentTime > tokenTime) {
+      throw new Error('Verification time has expired');
+    }
+
+    await verifyUserEmailAddress(token, email);
   }
 }

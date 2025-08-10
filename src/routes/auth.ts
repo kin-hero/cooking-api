@@ -1,11 +1,26 @@
 import { FastifyPluginAsync, FastifyRequest } from 'fastify';
-import { registerUser, RegisterRequestBody } from '@/controllers/auth';
+import {
+  registerUser,
+  RegisterRequestBody,
+  VerifyEmailQuery,
+  verifyUserEmail,
+} from '@/controllers/auth';
 
 const authRoutes: FastifyPluginAsync = async fastify => {
   fastify.post(
     '/register',
     async (request: FastifyRequest<{ Body: RegisterRequestBody }>, reply) => {
       await registerUser(request, reply);
+    }
+  );
+
+  fastify.get(
+    '/verify-email',
+    async (
+      request: FastifyRequest<{ Querystring: VerifyEmailQuery }>,
+      reply
+    ) => {
+      await verifyUserEmail(request, reply);
     }
   );
 
