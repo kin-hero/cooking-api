@@ -54,7 +54,7 @@ export const verifyUserEmail = async (
   try {
     const { email, token } = request.query;
     await authService.verifyUserEmailFromToken(token, email);
-    return reply.status(201).send({
+    return reply.status(200).send({
       success: true,
       message: "User's email address has been verified successfully",
     });
@@ -110,6 +110,32 @@ export const loginUser = async (
     return reply.status(500).send({
       success: false,
       error: 'Internal server error',
+    });
+  }
+};
+
+export const logoutUser = async (reply: FastifyReply) => {
+  try {
+    reply.clearCookie('recipe_token_user', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+    });
+
+    // Log successful logout for monitoring
+    console.log('User logged out successfully');
+
+    return reply.status(200).send({
+      success: true,
+      message: 'User has logged out successfully',
+    });
+  } catch (error) {
+    // Even logout errors should succeed to prevent UX issues
+    console.error('Logout error:', error);
+    return reply.status(200).send({
+      success: true,
+      message: 'User has logged out successfully',
     });
   }
 };
