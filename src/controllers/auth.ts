@@ -24,6 +24,7 @@ export const registerUser = async (
         email: user.email,
         displayName: user.display_name,
         emailVerified: user.email_verified,
+        verificationToken: user.verification_token,
       },
     });
   } catch (error) {
