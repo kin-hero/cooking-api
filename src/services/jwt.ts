@@ -1,4 +1,4 @@
-import jwt, { Algorithm } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 
 export interface JWTPayload {
   userId: string;
@@ -24,8 +24,8 @@ export class JWTService {
 
     return jwt.sign(payload, this.jwtSecret, {
       expiresIn: this.accessTokenExpiresIn,
-      algorithm: 'HS256' as Algorithm,
-    });
+      algorithm: 'HS256',
+    } as jwt.SignOptions);
   }
 
   verifyAccessToken(token: string): JWTPayload {

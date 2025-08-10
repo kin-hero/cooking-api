@@ -1,9 +1,12 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { AuthService } from '@/services/auth';
 import { JWTService } from '@/services/jwt';
+import { GoogleOAuthService } from '@/services/googleOAuth';
+import { findOrCreateGoogleUser } from '@/repositories/auth';
 
 const authService = new AuthService();
 const jwtService = new JWTService();
+const googleOAuthService = new GoogleOAuthService();
 
 export interface RegisterRequestBody {
   email: string;
@@ -11,10 +14,7 @@ export interface RegisterRequestBody {
   displayName: string;
 }
 
-export const registerUser = async (
-  request: FastifyRequest<{ Body: RegisterRequestBody }>,
-  reply: FastifyReply
-) => {
+export const registerUser = async (request: FastifyRequest<{ Body: RegisterRequestBody }>, reply: FastifyReply) => {
   try {
     const { email, password, displayName } = request.body;
     const user = await authService.registerUser(email, password, displayName);
@@ -47,10 +47,7 @@ export interface VerifyEmailQuery {
   token: string;
 }
 
-export const verifyUserEmail = async (
-  request: FastifyRequest<{ Querystring: VerifyEmailQuery }>,
-  reply: FastifyReply
-) => {
+export const verifyUserEmail = async (request: FastifyRequest<{ Querystring: VerifyEmailQuery }>, reply: FastifyReply) => {
   try {
     const { email, token } = request.query;
     await authService.verifyUserEmailFromToken(token, email);
@@ -74,20 +71,11 @@ export const verifyUserEmail = async (
 
 export type LoginRequestBody = Pick<RegisterRequestBody, 'email' | 'password'>;
 
-export const loginUser = async (
-  request: FastifyRequest<{ Body: LoginRequestBody }>,
-  reply: FastifyReply
-) => {
+export const loginUser = async (request: FastifyRequest<{ Body: LoginRequestBody }>, reply: FastifyReply) => {
   try {
     const { email, password } = request.body;
-    const userLoginData = await authService.loginUserCredentials(
-      email,
-      password
-    );
-    const jwtToken = jwtService.generateAccessToken(
-      userLoginData.userId,
-      userLoginData.email
-    );
+    const userLoginData = await authService.loginUserCredentials(email, password);
+    const jwtToken = jwtService.generateAccessToken(userLoginData.userId, userLoginData.email);
     // Set HTTP-only cookie AND return in response
     reply.setCookie('recipe_token_user', jwtToken, {
       httpOnly: true,
@@ -137,5 +125,65 @@ export const logoutUser = async (reply: FastifyReply) => {
       success: true,
       message: 'User has logged out successfully',
     });
+  }
+};
+
+export const initiateGoogleAuth = async (reply: FastifyReply) => {
+  try {
+    const authURL = googleOAuthService.generateAuthURL();
+    return reply.redirect(authURL);
+  } catch (error) {
+    console.error('Google OAuth initiation error:', error);
+    return reply.status(500).send({
+      success: false,
+      error: 'Failed to initiate Google authentication',
+    });
+  }
+};
+
+export const handleGoogleCallback = async (
+  request: FastifyRequest<{ Querystring: { code?: string; error?: string } }>,
+  reply: FastifyReply
+) => {
+  try {
+    const { code, error } = request.query;
+
+    if (error) {
+      console.error('Google OAuth error:', error);
+      return reply.redirect(`${process.env.FRONTEND_URL}/login?error=oauth_error`);
+    }
+
+    if (!code) {
+      console.error('No authorization code received from Google');
+      return reply.redirect(`${process.env.FRONTEND_URL}/login?error=no_code`);
+    }
+
+    // Get user info from Google
+    const googleUser = await googleOAuthService.getGoogleUser(code);
+
+    // Create or find user in our database
+    const user = await findOrCreateGoogleUser(googleUser.email, googleUser.name, googleUser.id, googleUser.picture);
+
+    // Generate JWT token using your existing system
+    const jwtToken = jwtService.generateAccessToken(user.id, user.email);
+
+    // Set the same cookie as your regular login
+    reply.setCookie('recipe_token_user', jwtToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    });
+
+    // Log successful login
+    console.log(`Google OAuth login successful for ${user.email}`);
+
+    // Redirect to frontend dashboard
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3001';
+    return reply.redirect(`${frontendUrl}/dashboard`);
+  } catch (error) {
+    console.error('Google OAuth callback error:', error);
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3001';
+    return reply.redirect(`${frontendUrl}/login?error=oauth_callback_failed`);
   }
 };

@@ -10,17 +10,18 @@ export const authenticateToken = (
   request: FastifyRequest,
   reply: FastifyReply,
   done: HookHandlerDoneFunction
-) => {
+): void => {
   const jwtService = new JWTService();
 
   const userToken = request.cookies.recipe_token_user;
 
   // Check if token exists
   if (!userToken) {
-    return reply.code(401).send({
+    reply.code(401).send({
       success: false,
       error: 'Access token is required',
     });
+    return;
   }
 
   try {
@@ -31,10 +32,11 @@ export const authenticateToken = (
     done();
   } catch (error) {
     console.log('❌ Token verification failed:', error);
-    return reply.code(401).send({
+    reply.code(401).send({
       success: false,
       error: 'Invalid or expired token',
     });
+    return;
   }
 };
 

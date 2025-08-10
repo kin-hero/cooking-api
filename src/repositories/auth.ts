@@ -1,5 +1,4 @@
 import { prisma } from '@/lib/prisma';
-import { tuple } from 'zod';
 
 export const findUserByEmail = async (email: string) => {
   return await prisma.users_cooking.findUnique({
@@ -68,4 +67,60 @@ export const getUserData = async (email: string) => {
     displayName: userData?.display_name,
     userId: userData?.id,
   };
+};
+
+export const findUserByGoogleId = async (googleId: string) => {
+  return await prisma.users_cooking.findUnique({
+    where: { google_id: googleId },
+  });
+};
+
+export const createGoogleUser = async (
+  email: string,
+  displayName: string,
+  googleId: string,
+  avatarUrl?: string
+) => {
+  return await prisma.users_cooking.create({
+    data: {
+      email,
+      display_name: displayName,
+      google_id: googleId,
+      avatar_url: avatarUrl ?? null,
+      email_verified: true, // Google users are pre-verified
+      password_hash: null, // No password for OAuth users
+    },
+  });
+};
+
+export const findOrCreateGoogleUser = async (
+  email: string,
+  displayName: string,
+  googleId: string,
+  avatarUrl?: string
+) => {
+  // First try to find by Google ID
+  let user = await findUserByGoogleId(googleId);
+
+  if (user) {
+    return user;
+  }
+
+  // Then try to find by email (existing user linking Google account)
+  user = await findUserByEmail(email);
+
+  if (user) {
+    // Update existing user with Google ID
+    return await prisma.users_cooking.update({
+      where: { id: user.id },
+      data: {
+        google_id: googleId,
+        avatar_url: avatarUrl ?? user.avatar_url,
+        email_verified: true,
+      },
+    });
+  }
+
+  // Create new Google user
+  return await createGoogleUser(email, displayName, googleId, avatarUrl);
 };
