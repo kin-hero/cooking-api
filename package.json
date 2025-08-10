@@ -4,7 +4,7 @@
   "description": "REST API for a cooking website with recipe management and authentication",
   "main": "dist/app.js",
   "scripts": {
-    "dev": "tsx watch src/app.ts",
+    "dev": "tsx watch src/app.ts | pino-pretty",
     "build": "tsc",
     "start": "node dist/app.js",
     "test": "jest",
@@ -28,14 +28,18 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@fastify/cookie": "^9.4.0",
     "@fastify/cors": "^8.4.2",
     "@fastify/helmet": "^11.1.1",
     "@fastify/jwt": "^7.2.4",
     "@fastify/multipart": "^8.0.0",
     "@fastify/rate-limit": "^9.0.1",
     "@prisma/client": "^5.7.1",
+    "bcrypt": "^6.0.0",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^1.41.3",
+    "crypto": "^1.0.1",
+    "dayjs": "^1.11.13",
     "dotenv": "^16.3.1",
     "fastify": "^4.24.3",
     "passport": "^0.7.0",
@@ -44,6 +48,7 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/jest": "^29.5.8",
     "@types/node": "^20.10.5",
@@ -58,6 +63,7 @@
     "globals": "^16.3.0",
     "jest": "^29.7.0",
     "jiti": "^2.5.1",
+    "pino-pretty": "^13.1.1",
     "prettier": "^3.1.1",
     "prisma": "^5.7.1",
     "ts-jest": "^29.1.1",
