@@ -6,6 +6,7 @@ import {
   verifyUserEmail,
   LoginRequestBody,
   loginUser,
+  logoutUser,
 } from '@/controllers/auth';
 
 const authRoutes: FastifyPluginAsync = async fastify => {
@@ -45,8 +46,8 @@ const authRoutes: FastifyPluginAsync = async fastify => {
     return { success: true, message: 'Refresh token endpoint - TODO' };
   });
 
-  fastify.post('/logout', async (_request, _reply) => {
-    return { success: true, message: 'Logout endpoint - TODO' };
+  fastify.post('/logout', async (_request, reply) => {
+    await logoutUser(reply);
   });
 };
 
