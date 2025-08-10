@@ -5,6 +5,7 @@ import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
 import multipart from '@fastify/multipart';
 import jwt from '@fastify/jwt';
+import cookie from '@fastify/cookie';
 
 import authRoutes from '@/routes/auth';
 import recipeRoutes from '@/routes/recipes';
@@ -26,7 +27,7 @@ const startServer = async () => {
     // CORS plugin
     await fastify.register(cors, {
       origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
-      credentials: true,
+      credentials: true, //CRITICAL: Allows cookies in CORS requests
     });
 
     // Security plugin
@@ -44,6 +45,9 @@ const startServer = async () => {
         fileSize: 10 * 1024 * 1024, // 10MB limit
       },
     });
+
+    // Cookie plugin
+    await fastify.register(cookie);
 
     // JWT plugin
     await fastify.register(jwt, {
