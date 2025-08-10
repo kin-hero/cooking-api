@@ -17,13 +17,15 @@ Welcome to **RecipeShare**, the official backend service for our community-drive
 This API provides a complete set of features for both unauthenticated visitors and registered users.
 
 ### 🚶 For Visitors
-* **Browse All Recipes**: Anyone can view the full collection of recipes shared by our users.
+
+- **Browse All Recipes**: Anyone can view the full collection of recipes shared by our users.
 
 ### 👤 For Authenticated Users
-* **Secure Authentication**: Users can sign up and log in using email/password (with JWT) or through Google OAuth for a seamless experience.
-* **Publish Recipes**: Share your culinary creations with the community.
-* **Update Your Recipes**: Easily edit and refine the recipes you've posted.
-* **Delete Your Recipes**: Remove your recipes from the platform at any time.
+
+- **Secure Authentication**: Users can sign up and log in using email/password (with JWT) or through Google OAuth for a seamless experience.
+- **Publish Recipes**: Share your culinary creations with the community.
+- **Update Your Recipes**: Easily edit and refine the recipes you've posted.
+- **Delete Your Recipes**: Remove your recipes from the platform at any time.
 
 ---
 
@@ -31,12 +33,11 @@ This API provides a complete set of features for both unauthenticated visitors a
 
 This project is built with a focus on type-safety, performance, and scalability.
 
-* **[Fastify](https://www.fastify.io/)**: A high-performance, low-overhead web framework for Node.js.
-* **[Prisma](https://www.prisma.io/)**: A next-generation ORM that makes database access easy with full type-safety.
-* **[Supabase](https://supabase.com/)**: Our all-in-one backend solution, used for:
-    * **PostgreSQL Database**: For robust and scalable data storage.
-    * **OAuth & Auth**: Manages user authentication, including Google OAuth and JWT handling.
-* **[TypeScript](https://www.typescriptlang.org/)**: For building robust, scalable, and maintainable code with static types.
+- **[Fastify](https://www.fastify.io/)**: A high-performance, low-overhead web framework for Node.js.
+- **[Prisma](https://www.prisma.io/)**: A next-generation ORM that makes database access easy with full type-safety.
+- **[Supabase](https://supabase.com/)**: Our all-in-one backend solution, used for:
+  - **PostgreSQL Database**: For robust and scalable data storage.
+  - **OAuth & Auth**: Manages user authentication, including Google OAuth and JWT handling.
+- **[TypeScript](https://www.typescriptlang.org/)**: For building robust, scalable, and maintainable code with static types.
 
 ---
-
