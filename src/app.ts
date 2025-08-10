@@ -27,7 +27,7 @@ const startServer = async () => {
     // CORS plugin
     await fastify.register(cors, {
       origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
-      credentials: true,
+      credentials: true, //CRITICAL: Allows cookies in CORS requests
     });
 
     // Security plugin
