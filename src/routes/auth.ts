@@ -4,6 +4,8 @@ import {
   RegisterRequestBody,
   VerifyEmailQuery,
   verifyUserEmail,
+  LoginRequestBody,
+  loginUser,
 } from '@/controllers/auth';
 
 const authRoutes: FastifyPluginAsync = async fastify => {
@@ -24,9 +26,12 @@ const authRoutes: FastifyPluginAsync = async fastify => {
     }
   );
 
-  fastify.post('/login', async (_request, _reply) => {
-    return { success: true, message: 'Login endpoint - TODO' };
-  });
+  fastify.post(
+    '/login',
+    async (request: FastifyRequest<{ Body: LoginRequestBody }>, reply) => {
+      await loginUser(request, reply);
+    }
+  );
 
   fastify.get('/google', async (_request, _reply) => {
     return { success: true, message: 'Google OAuth endpoint - TODO' };
