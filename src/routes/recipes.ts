@@ -1,4 +1,5 @@
 import { FastifyPluginAsync } from 'fastify';
+import authenticateToken from '@/middleware/auth';
 
 const recipeRoutes: FastifyPluginAsync = async fastify => {
   // Public routes (no auth required)
@@ -11,9 +12,14 @@ const recipeRoutes: FastifyPluginAsync = async fastify => {
   });
 
   // Protected routes (auth required)
-  fastify.post('/', async (_request, _reply) => {
-    return { success: true, message: 'Create recipe - TODO' };
-  });
+  fastify.post(
+    '/',
+    { preHandler: authenticateToken },
+    async (request, _reply) => {
+      console.log('Request User', request.user);
+      return { success: true, message: 'Create recipe - TODO' };
+    }
+  );
 
   fastify.put('/:id', async (_request, _reply) => {
     return { success: true, message: 'Update recipe - TODO' };
