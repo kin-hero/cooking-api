@@ -1,33 +1,22 @@
 # Development Dockerfile
 FROM node:20-alpine
 
-# Install dependencies for development
-RUN apk add --no-cache libc6-compat
-
+# Install dependencies for development (including OpenSSL for Prisma)
+RUN apk add --no-cache openssl
 # Set working directory
 WORKDIR /app
 
 # Copy package files
 COPY package.json package-lock.json* ./
 
-# Install all dependencies (including dev dependencies)
-RUN npm ci
+# Install all dependencies
+RUN npm install
 
 # Copy prisma schema for client generation
 COPY prisma ./prisma
 
 # Generate Prisma client
 RUN npx prisma generate
-
-# Create a non-root user for development
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 devuser
-
-# Change ownership of the app directory
-RUN chown -R devuser:nodejs /app
-
-# Switch to non-root user
-USER devuser
 
 # Expose port
 EXPOSE 3000
