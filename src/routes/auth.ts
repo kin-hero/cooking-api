@@ -7,6 +7,8 @@ import {
   LoginRequestBody,
   loginUser,
   logoutUser,
+  initiateGoogleAuth,
+  handleGoogleCallback,
 } from '@/controllers/auth';
 
 const authRoutes: FastifyPluginAsync = async fastify => {
@@ -34,17 +36,21 @@ const authRoutes: FastifyPluginAsync = async fastify => {
     }
   );
 
-  fastify.get('/google', async (_request, _reply) => {
-    return { success: true, message: 'Google OAuth endpoint - TODO' };
+  fastify.get('/google', async (_request, reply) => {
+    await initiateGoogleAuth(reply);
   });
 
-  fastify.get('/google/callback', async (_request, _reply) => {
-    return { success: true, message: 'Google OAuth callback - TODO' };
-  });
-
-  fastify.post('/refresh', async (_request, _reply) => {
-    return { success: true, message: 'Refresh token endpoint - TODO' };
-  });
+  fastify.get(
+    '/google/callback',
+    async (
+      request: FastifyRequest<{
+        Querystring: { code?: string; error?: string };
+      }>,
+      reply
+    ) => {
+      await handleGoogleCallback(request, reply);
+    }
+  );
 
   fastify.post('/logout', async (_request, reply) => {
     await logoutUser(reply);

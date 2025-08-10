@@ -32,6 +32,9 @@ export class AuthService {
 
     // Check if user already exists
     const existingUser = await findUserByEmail(email);
+    if (existingUser?.google_id) {
+      throw new Error('User has sign in via Google');
+    }
     if (existingUser) {
       throw new Error('User with this email already exists');
     }
@@ -45,13 +48,7 @@ export class AuthService {
     const tomorrow = today.add(1, 'day').toDate();
 
     // Create user
-    const user = await createUser(
-      email,
-      passwordHash,
-      displayName,
-      verificationToken,
-      tomorrow
-    );
+    const user = await createUser(email, passwordHash, displayName, verificationToken, tomorrow);
     return user;
   }
 
@@ -60,8 +57,7 @@ export class AuthService {
       throw new Error('Verification Token is required');
     }
     const currentTime = dayjs().toDate();
-    const { emailFromDB, tokenTime } =
-      await getUserVerificationTokenExpiredAtTime(email);
+    const { emailFromDB, tokenTime } = await getUserVerificationTokenExpiredAtTime(email);
 
     if (!emailFromDB) {
       throw new Error('This email address does not exist');
@@ -81,8 +77,7 @@ export class AuthService {
       throw new Error('Email address or password are needed for login');
     }
 
-    const { isEmailVerified, passwordHash, displayName, userId } =
-      await getUserData(email);
+    const { isEmailVerified, passwordHash, displayName, userId } = await getUserData(email);
 
     // Check if user exists
     if (!passwordHash) {
