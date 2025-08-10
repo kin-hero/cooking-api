@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { tuple } from 'zod';
 
 export const findUserByEmail = async (email: string) => {
   return await prisma.users_cooking.findUnique({
@@ -49,4 +50,22 @@ export const verifyUserEmailAddress = async (token: string, email: string) => {
     },
   });
   return verifiedUser;
+};
+
+export const getUserData = async (email: string) => {
+  const userData = await prisma.users_cooking.findUnique({
+    where: { email: email },
+    select: {
+      password_hash: true,
+      email_verified: true,
+      display_name: true,
+      id: true,
+    },
+  });
+  return {
+    isEmailVerified: userData?.email_verified,
+    passwordHash: userData?.password_hash,
+    displayName: userData?.display_name,
+    userId: userData?.id,
+  };
 };
