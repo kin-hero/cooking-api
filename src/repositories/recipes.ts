@@ -46,3 +46,30 @@ export const createRecipeWithImagesTransaction = async (
     return recipe;
   });
 };
+
+export const saveRecipeWithoutImages = async (recipeData: {
+  title: string;
+  description: string;
+  ingredients: string[];
+  instructions: string[];
+  prepTimeMinutes: number;
+  cookingTimeMinutes: number;
+  servingSize: number;
+  isPublished: boolean;
+  userId: string;
+}) => {
+  const recipe = await prisma.recipes.create({
+    data: {
+      title: recipeData.title,
+      description: recipeData.description,
+      ingredients: recipeData.ingredients,
+      instructions: recipeData.instructions,
+      prep_time_minutes: recipeData.prepTimeMinutes,
+      cooking_time_minutes: recipeData.cookingTimeMinutes,
+      serving_size: recipeData.servingSize,
+      is_published: recipeData.isPublished,
+      author_id: recipeData.userId,
+    },
+  });
+  return recipe;
+};
