@@ -1,6 +1,6 @@
 import { FastifyPluginAsync } from 'fastify';
 import authenticateToken from '@/middleware/auth';
-import { createRecipe, RecipeRequestBody } from '@/controllers/recipes';
+import { createRecipe } from '@/controllers/recipes';
 
 const recipeRoutes: FastifyPluginAsync = async fastify => {
   // Public routes (no auth required)
@@ -13,9 +13,15 @@ const recipeRoutes: FastifyPluginAsync = async fastify => {
   });
 
   // Protected routes (auth required)
-  fastify.post<{ Body: RecipeRequestBody }>('/', { preHandler: authenticateToken }, async (request, reply) => {
-    await createRecipe(request, reply);
-  });
+  fastify.post(
+    '/',
+    {
+      preHandler: authenticateToken,
+    },
+    async (request, reply) => {
+      await createRecipe(request, reply);
+    }
+  );
 
   fastify.put('/:id', async (_request, _reply) => {
     return { success: true, message: 'Update recipe - TODO' };
