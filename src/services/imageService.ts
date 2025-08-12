@@ -17,18 +17,12 @@ export class ImageService {
   };
 
   resizeImageThumbnail = async (imageFile: Buffer) => {
-    const thumbnailImage = await sharp(imageFile)
-      .resize(400, 300, { kernel: sharp.kernel.nearest, fit: 'fill' })
-      .jpeg({ quality: 80 })
-      .toBuffer();
+    const thumbnailImage = await sharp(imageFile).resize(400, 300, { kernel: sharp.kernel.nearest, fit: 'fill' }).toBuffer();
     return thumbnailImage;
   };
 
   resizeImageLarge = async (imageFile: Buffer) => {
-    const thumbnailLarge = await sharp(imageFile)
-      .resize(1200, 800, { kernel: sharp.kernel.nearest, fit: 'fill' })
-      .jpeg({ quality: 80 })
-      .toBuffer();
+    const thumbnailLarge = await sharp(imageFile).resize(1200, 800, { kernel: sharp.kernel.nearest, fit: 'fill' }).toBuffer();
     return thumbnailLarge;
   };
 }
