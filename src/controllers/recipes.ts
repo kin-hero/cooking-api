@@ -36,10 +36,6 @@ export const createRecipe = async (request: FastifyRequest, reply: FastifyReply)
       }
     }
 
-    if (!imageFile) {
-      throw new Error('No image file uploaded');
-    }
-
     // Extract and validate form fields
     const title = formFields.title;
     const description = formFields.description;
@@ -61,6 +57,14 @@ export const createRecipe = async (request: FastifyRequest, reply: FastifyReply)
       isPublished,
       userId,
     };
+
+    if (imageFile === null) {
+      await recipeService.createRecipeWithoutImage(recipeData);
+      return reply.status(201).send({
+        success: true,
+        message: 'Recipe has been created successfully',
+      });
+    }
 
     // Use transactional approach with image processing callback
     await recipeService.createRecipeWithTransaction(recipeData, async (recipeId: string) => {
