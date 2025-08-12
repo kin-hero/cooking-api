@@ -42,7 +42,7 @@ const startServer = async () => {
     // Multipart form support
     await fastify.register(multipart, {
       limits: {
-        fileSize: 10 * 1024 * 1024, // 10MB limit
+        fileSize: 2 * 1024 * 1024, // 2MB limit
       },
     });
 
@@ -92,10 +92,7 @@ const startServer = async () => {
       }
 
       const statusCode = error.statusCode || 500;
-      const message =
-        process.env.NODE_ENV === 'production' && statusCode >= 500
-          ? 'Internal Server Error'
-          : error.message;
+      const message = process.env.NODE_ENV === 'production' && statusCode >= 500 ? 'Internal Server Error' : error.message;
 
       reply.code(statusCode).send({
         success: false,

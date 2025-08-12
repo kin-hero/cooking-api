@@ -2,15 +2,11 @@ import { FastifyRequest, FastifyReply, HookHandlerDoneFunction } from 'fastify';
 import { JWTService, JWTPayload } from '@/services/jwt';
 
 // Create a custom interface that extends FastifyRequest
-interface AuthenticatedRequest extends FastifyRequest {
+export interface AuthenticatedRequest extends FastifyRequest {
   user: JWTPayload;
 }
 
-export const authenticateToken = (
-  request: FastifyRequest,
-  reply: FastifyReply,
-  done: HookHandlerDoneFunction
-): void => {
+export const authenticateToken = (request: FastifyRequest, reply: FastifyReply, done: HookHandlerDoneFunction): void => {
   const jwtService = new JWTService();
 
   const userToken = request.cookies.recipe_token_user;
