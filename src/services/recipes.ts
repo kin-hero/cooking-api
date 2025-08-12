@@ -1,34 +1,17 @@
-import { RecipeRequestBody } from '@/controllers/recipes';
-import { saveRecipeToDatabase } from '@/repositories/recipes';
+import { saveRecipeToDatabase, getMostRecentRecipeId } from '@/repositories/recipes';
 
 export class RecipeService {
-  async saveRecipe(
-    {
-      title,
-      description,
-      ingredients,
-      instructions,
-      prepTimeMinutes,
-      cookingTimeMinutes,
-      servingSize,
-      imageUrl,
-      isPublished,
-    }: RecipeRequestBody,
+  saveRecipe = async (
+    title: string,
+    description: string,
+    ingredients: string[],
+    instructions: string[],
+    prepTimeMinutes: number,
+    cookingTimeMinutes: number,
+    servingSize: number,
+    isPublished: boolean,
     userId: string
-  ) {
-    if (
-      !title ||
-      !description ||
-      !ingredients ||
-      !instructions ||
-      !prepTimeMinutes ||
-      !cookingTimeMinutes ||
-      !servingSize ||
-      !isPublished
-    ) {
-      throw new Error('All fields are required');
-    }
-
+  ) => {
     const recipes = await saveRecipeToDatabase(
       title,
       description,
@@ -37,10 +20,14 @@ export class RecipeService {
       prepTimeMinutes,
       cookingTimeMinutes,
       servingSize,
-      imageUrl,
       isPublished,
       userId
     );
     return recipes;
-  }
+  };
+
+  getRecipeId = async (userId: string) => {
+    const mostRecentRecipedId = await getMostRecentRecipeId(userId);
+    return mostRecentRecipedId;
+  };
 }
