@@ -1,5 +1,5 @@
 import { FastifyPluginAsync, FastifyRequest } from 'fastify';
-import authenticateToken from '@/middleware/auth';
+import { authenticateToken, allowEmptyToken } from '@/middleware/auth';
 import {
   createRecipe,
   getAllRecipes,
@@ -13,7 +13,6 @@ import { getRecipeByIdSchema } from '@/schema/recipes/getById';
 import { getAuthorRecipesSchema } from '@/schema/recipes/getAuthor';
 
 const recipeRoutes: FastifyPluginAsync = async fastify => {
-  // Public routes (no auth required)
   fastify.get(
     '/',
     {
@@ -24,7 +23,6 @@ const recipeRoutes: FastifyPluginAsync = async fastify => {
     }
   );
 
-  // Protected routes (auth required) - Place static routes before dynamic ones
   fastify.get(
     '/author',
     {
@@ -46,8 +44,7 @@ const recipeRoutes: FastifyPluginAsync = async fastify => {
     }
   );
 
-  // Dynamic routes (must come after static routes)
-  fastify.get('/:id', { schema: getRecipeByIdSchema }, async (request, reply) => {
+  fastify.get('/:id', { preHandler: allowEmptyToken, schema: getRecipeByIdSchema }, async (request, reply) => {
     await getDetailRecipe(request as FastifyRequest<{ Params: RecipeDetailParams }>, reply);
   });
 

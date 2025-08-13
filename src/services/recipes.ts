@@ -62,7 +62,7 @@ export class RecipeService {
     };
   };
 
-  fetchDetailRecipe = async (recipeId: string): Promise<RecipeDetailData> => {
+  fetchDetailRecipe = async (recipeId: string, userId: string | undefined): Promise<RecipeDetailData> => {
     const detailRecipe = await fetchDetailRecipeFromDB(recipeId);
     const formattedDetailRecipe = {
       id: detailRecipe.id,
@@ -77,6 +77,7 @@ export class RecipeService {
       recipeUpdatedAt: detailRecipe.updated_at,
       authorName: detailRecipe.users_cooking.display_name,
       authorAvatarUrl: detailRecipe.users_cooking.avatar_url,
+      isOwner: userId ? userId === detailRecipe.author_id : false,
     };
     return formattedDetailRecipe;
   };

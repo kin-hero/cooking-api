@@ -36,4 +36,5 @@ export interface RecipeDetailData {
   recipeUpdatedAt: Date;
   authorName: string;
   authorAvatarUrl: string | null;
+  isOwner: boolean;
 }

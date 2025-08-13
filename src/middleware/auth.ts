@@ -36,4 +36,13 @@ export const authenticateToken = (request: FastifyRequest, reply: FastifyReply, 
   }
 };
 
-export default authenticateToken;
+export const allowEmptyToken = (request: FastifyRequest, reply: FastifyReply, done: HookHandlerDoneFunction) => {
+  const jwtService = new JWTService();
+  const userToken = request.cookies.recipe_token_user;
+  if (userToken) {
+    const decodedToken = jwtService.verifyAccessToken(userToken);
+    (request as AuthenticatedRequest).user = decodedToken;
+    done();
+  }
+  done();
+};

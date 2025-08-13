@@ -126,7 +126,8 @@ export interface RecipeDetailParams {
 export const getDetailRecipe = async (request: FastifyRequest<{ Params: RecipeDetailParams }>, reply: FastifyReply) => {
   try {
     const { id } = request.params;
-    const recipeDetailData = await recipeService.fetchDetailRecipe(id);
+    const userId = (request as AuthenticatedRequest).user?.userId;
+    const recipeDetailData = await recipeService.fetchDetailRecipe(id, userId);
     return reply.status(200).send({
       success: true,
       message: 'Recipe detail has been fetched successfully',
