@@ -1,5 +1,5 @@
 interface RecipeDataForHomePage {
-  recipedId: string;
+  recipeId: string;
   title: string;
   prepTimeMinutes: number;
   cookingTimeMinutes: number;
