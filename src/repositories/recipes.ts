@@ -132,7 +132,35 @@ export const fetchDetailRecipeFromDB = async (recipeId: string) => {
     },
   });
   if (!detailRecipe) {
-    throw new Error('This reciped does not exist');
+    throw new Error('This recipe does not exist');
   }
   return detailRecipe;
+};
+
+export const fetchRecipesPerAuthorFromDB = async (userId: string, offset: number, limit: number) => {
+  const recipeData = await prisma.recipes.findMany({
+    select: {
+      id: true,
+      title: true,
+      prep_time_minutes: true,
+      cooking_time_minutes: true,
+      serving_size: true,
+      thumbnail_image_url: true,
+    },
+    where: {
+      author_id: userId,
+    },
+    orderBy: {
+      updated_at: 'desc',
+    },
+    skip: offset,
+    take: limit,
+  });
+
+  const publishedRecipesCount = await prisma.recipes.count({ where: { author_id: userId } });
+
+  return {
+    recipeData,
+    totalItems: publishedRecipesCount,
+  };
 };
