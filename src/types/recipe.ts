@@ -9,8 +9,16 @@ interface RecipeDataForHomePage {
   authorAvatarUrl: string | null;
 }
 
+type RecipeDataWithoutAuthor = Omit<RecipeDataForHomePage, 'authorName' | 'authorAvatarUrl'>;
+
 export interface RecipeData {
   recipeData: RecipeDataForHomePage[];
+  totalItems: number;
+  hasMore: boolean;
+}
+
+export interface RecipeWithoutAuthorData {
+  recipeData: RecipeDataWithoutAuthor[];
   totalItems: number;
   hasMore: boolean;
 }
