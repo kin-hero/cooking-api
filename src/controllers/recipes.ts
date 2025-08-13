@@ -211,7 +211,7 @@ export const updateRecipe = async (request: FastifyRequest<{ Params: RecipeDetai
 
     // Build update object dynamically - only include provided fields
     const updateFields: Record<string, any> = {};
-    
+
     Object.entries(formFields).forEach(([fieldName, fieldValue]) => {
       // Only process fields that exist in our processor map and have values
       if (fieldProcessors[fieldName] && fieldValue !== undefined && fieldValue !== '') {
@@ -235,11 +235,25 @@ export const updateRecipe = async (request: FastifyRequest<{ Params: RecipeDetai
         message: 'Recipe has been updated successfully',
       });
     }
+    await recipeService.updateRecipeWithTransaction(recipeId, userId, updateFields, async (recipeId: string) => {
+      // 1. Validate image
+      const imageBuffer = imageFile.buffer;
+      const mimeType = imageFile.mimetype;
+      const fileSize = imageBuffer.length;
+      imageService.validateImageFileSize(fileSize);
+      imageService.validateImageFormat(mimeType);
 
-    // TODO: Handle image update case in future implementation
-    return reply.status(501).send({
-      success: false,
-      message: 'Image updates not yet implemented',
+      // 2. Process images
+      const imageThumbnail = await imageService.resizeImageThumbnail(imageBuffer);
+      const imageLarge = await imageService.resizeImageLarge(imageBuffer);
+
+      // 3. Upload new image
+      const { thumbnailImageUrl, largeImageUrl } = await s3Service.uploadImageToBucket(userId, recipeId, imageThumbnail, imageLarge);
+      return { thumbnailImageUrl, largeImageUrl };
+    });
+    return reply.status(201).send({
+      success: true,
+      message: 'Recipe has been updated successfully',
     });
   } catch (error) {
     return handleError(reply, error);
