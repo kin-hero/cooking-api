@@ -62,7 +62,6 @@ export class RecipeService {
   };
 
   fetchDetailRecipe = async (recipeId: string): Promise<RecipeDetailData> => {
-    console.log('🚀 ~ RecipeService ~ recipeId:', recipeId);
     const detailRecipe = await fetchDetailRecipeFromDB(recipeId);
     const formattedDetailRecipe = {
       id: detailRecipe.id,
