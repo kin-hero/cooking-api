@@ -8,6 +8,7 @@ import {
   RecipeDetailParams,
   getRecipesPerAuthor,
   deleteRecipe,
+  updateRecipe,
 } from '@/controllers/recipes';
 import { getAllRecipesSchema } from '@/schema/recipes/getAll';
 import { getRecipeByIdSchema } from '@/schema/recipes/getById';
@@ -49,8 +50,8 @@ const recipeRoutes: FastifyPluginAsync = async fastify => {
     await getDetailRecipe(request as FastifyRequest<{ Params: RecipeDetailParams }>, reply);
   });
 
-  fastify.put('/:id', async (_request, _reply) => {
-    return { success: true, message: 'Update recipe - TODO' };
+  fastify.put('/:id', { preHandler: authenticateToken }, async (request, reply) => {
+    await updateRecipe(request as FastifyRequest<{ Params: RecipeDetailParams }>, reply);
   });
 
   fastify.delete(
