@@ -1,10 +1,11 @@
 import {
   createRecipeWithImagesTransaction,
   fetchDetailRecipeFromDB,
+  fetchRecipesPerAuthorFromDB,
   fetchRecipesUsingOffsetAndLimit,
   saveRecipeWithoutImages,
 } from '@/repositories/recipes';
-import { RecipeData, RecipeDetailData } from '@/types/recipe';
+import { RecipeData, RecipeDetailData, RecipeWithoutAuthorData } from '@/types/recipe';
 
 export class RecipeService {
   createRecipeWithTransaction = async (
@@ -78,5 +79,26 @@ export class RecipeService {
       authorAvatarUrl: detailRecipe.users_cooking.avatar_url,
     };
     return formattedDetailRecipe;
+  };
+
+  fetchRecipesPerAuthor = async (page: number, limit: number, userId: string): Promise<RecipeWithoutAuthorData> => {
+    const offset = (page - 1) * limit;
+    const { recipeData, totalItems } = await fetchRecipesPerAuthorFromDB(userId, offset, limit);
+    const hasMore = page * limit <= totalItems;
+    const formattedRecipedData = recipeData.map(item => {
+      return {
+        recipeId: item.id,
+        title: item.title,
+        prepTimeMinutes: item.prep_time_minutes,
+        cookingTimeMinutes: item.cooking_time_minutes,
+        servingSize: item.serving_size,
+        imageUrl: item.thumbnail_image_url,
+      };
+    });
+    return {
+      recipeData: formattedRecipedData,
+      totalItems,
+      hasMore,
+    };
   };
 }
