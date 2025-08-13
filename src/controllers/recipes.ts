@@ -105,7 +105,7 @@ export const createRecipe = async (request: FastifyRequest, reply: FastifyReply)
   }
 };
 
-interface RecipeAllRequest {
+export interface RecipeAllRequest {
   page: number;
   limit: number;
 }
@@ -118,7 +118,7 @@ export const getAllRecipes = async (request: FastifyRequest<{ Querystring: Recip
     if (page <= 0) {
       throw new Error('The page should start from 1');
     }
-    const { recipeData, totalItems, hasMore } = await recipeService.fetchAllRecipes(page, limit);
+    const { recipeData, totalItems, hasMore } = await recipeService.fetchAllRecipes(Number(page), Number(limit));
     return reply.status(200).send({
       success: true,
       message: 'Recipe for the homepage has been fetched succesfully',
