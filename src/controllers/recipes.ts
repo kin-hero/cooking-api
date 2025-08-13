@@ -1,5 +1,5 @@
-import { RecipeService } from '@/services/recipes';
 import { FastifyRequest, FastifyReply } from 'fastify';
+import { RecipeService } from '@/services/recipes';
 import { AuthenticatedRequest } from '@/middleware/auth';
 import { ImageService } from '@/services/imageService';
 import { S3Service } from '@/services/S3Service';
@@ -103,14 +103,7 @@ export interface RecipeAllRequest {
 }
 export const getAllRecipes = async (request: FastifyRequest<{ Querystring: RecipeAllRequest }>, reply: FastifyReply) => {
   try {
-    const page = parseInt(request.query.page?.toString() || '1', 10);
-    const limit = parseInt(request.query.limit?.toString() || '10', 10);
-    if (isNaN(page) || page < 1) {
-      throw new Error('Page must be a positive integer starting from 1');
-    }
-    if (isNaN(limit) || limit < 1 || limit > 20) {
-      throw new Error('Limit must be between 1 and 20');
-    }
+    const { page, limit } = request.query;
     const { recipeData, totalItems, hasMore } = await recipeService.fetchAllRecipes(page, limit);
     return reply.status(200).send({
       success: true,
