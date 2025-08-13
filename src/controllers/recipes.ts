@@ -163,7 +163,10 @@ export const deleteRecipe = async (request: FastifyRequest<{ Params: RecipeDetai
   try {
     const { id } = request.params;
     const userId = (request as AuthenticatedRequest).user.userId;
-    await recipeService.removeRecipe(id, userId);
+    await recipeService.removeRecipe(id, userId, async (thummbnailImageUrl: string | null, largeImageUrl: string | null) => {
+      thummbnailImageUrl ? await s3Service.deleteImage(thummbnailImageUrl) : null;
+      largeImageUrl ? await s3Service.deleteImage(largeImageUrl) : null;
+    });
     return reply.status(200).send({
       success: true,
       message: 'Recipe has been deleted successfully',
