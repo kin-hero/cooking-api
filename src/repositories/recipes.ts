@@ -73,3 +73,38 @@ export const saveRecipeWithoutImages = async (recipeData: {
   });
   return recipe;
 };
+
+export const fetchRecipesUsingOffsetAndLimit = async (offset: number, limit: number) => {
+  const recipeData = await prisma.recipes.findMany({
+    select: {
+      id: true,
+      title: true,
+      prep_time_minutes: true,
+      cooking_time_minutes: true,
+      serving_size: true,
+      thumbnail_image_url: true,
+      users_cooking: {
+        select: {
+          display_name: true,
+          avatar_url: true,
+        },
+      },
+    },
+
+    where: {
+      is_published: true,
+    },
+    orderBy: {
+      updated_at: 'desc',
+    },
+    skip: offset,
+    take: limit,
+  });
+
+  const publishedRecipesCount = await prisma.recipes.count({ where: { is_published: true } });
+
+  return {
+    recipeData,
+    totalItems: publishedRecipesCount,
+  };
+};

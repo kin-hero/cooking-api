@@ -1,11 +1,11 @@
-import { FastifyPluginAsync } from 'fastify';
+import { FastifyPluginAsync, FastifyRequest } from 'fastify';
 import authenticateToken from '@/middleware/auth';
-import { createRecipe } from '@/controllers/recipes';
+import { createRecipe, getAllRecipes, RecipeAllRequest } from '@/controllers/recipes';
 
 const recipeRoutes: FastifyPluginAsync = async fastify => {
   // Public routes (no auth required)
-  fastify.get('/', async (_request, _reply) => {
-    return { success: true, message: 'Get all recipes - TODO' };
+  fastify.get('/', async (request: FastifyRequest<{ Querystring: RecipeAllRequest }>, reply) => {
+    await getAllRecipes(request, reply);
   });
 
   fastify.get('/:id', async (_request, _reply) => {
