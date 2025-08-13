@@ -175,3 +175,73 @@ export const deleteRecipe = async (request: FastifyRequest<{ Params: RecipeDetai
     return handleError(reply, error);
   }
 };
+
+export const updateRecipe = async (request: FastifyRequest<{ Params: RecipeDetailParams }>, reply: FastifyReply) => {
+  try {
+    const { id: recipeId } = request.params;
+    const userId = (request as AuthenticatedRequest).user.userId;
+    // Process all multipart parts
+    const parts = request.parts();
+    let imageFile: EnhancedMultipartFile | null = null;
+    const formFields: Record<string, string> = {};
+
+    for await (const part of parts) {
+      if (part.type === 'file') {
+        const buffer = await part.toBuffer();
+        imageFile = {
+          ...part,
+          buffer: buffer,
+        } as EnhancedMultipartFile;
+      } else {
+        formFields[part.fieldname] = part.value as string;
+      }
+    }
+
+    // Smart field processing - only process fields that are provided
+    const fieldProcessors: Record<string, (value: string) => any> = {
+      title: (value: string) => value,
+      description: (value: string) => value,
+      ingredients: (value: string) => JSON.parse(value),
+      instructions: (value: string) => JSON.parse(value),
+      prepTimeMinutes: (value: string) => parseInt(value),
+      cookingTimeMinutes: (value: string) => parseInt(value),
+      servingSize: (value: string) => parseInt(value),
+      isPublished: (value: string) => value === 'true',
+    };
+
+    // Build update object dynamically - only include provided fields
+    const updateFields: Record<string, any> = {};
+    
+    Object.entries(formFields).forEach(([fieldName, fieldValue]) => {
+      // Only process fields that exist in our processor map and have values
+      if (fieldProcessors[fieldName] && fieldValue !== undefined && fieldValue !== '') {
+        updateFields[fieldName] = fieldProcessors[fieldName](fieldValue);
+      }
+    });
+
+    // Validate that at least one field is being updated
+    if (Object.keys(updateFields).length === 0 && !imageFile) {
+      return reply.status(400).send({
+        success: false,
+        message: 'No fields provided for update',
+      });
+    }
+
+    // Handle case with no image update (focus for now)
+    if (imageFile === null) {
+      await recipeService.updateRecipeWithoutImage(recipeId, userId, updateFields);
+      return reply.status(200).send({
+        success: true,
+        message: 'Recipe has been updated successfully',
+      });
+    }
+
+    // TODO: Handle image update case in future implementation
+    return reply.status(501).send({
+      success: false,
+      message: 'Image updates not yet implemented',
+    });
+  } catch (error) {
+    return handleError(reply, error);
+  }
+};
