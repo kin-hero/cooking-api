@@ -153,3 +153,6 @@ public/uploads/
 test-results/
 playwright-report/
 playwright/.cache/
+
+# Learning Examples
+learning-examples/
