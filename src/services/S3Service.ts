@@ -6,6 +6,7 @@ export class S3Service {
   private awsRegion: string;
   private awsS3BucketName: string;
   private awsS3BucketUrl: string;
+  private readonly s3Client: S3Client;
 
   constructor() {
     // Class properties are camelCase
@@ -14,19 +15,19 @@ export class S3Service {
     this.awsRegion = process.env.AWS_REGION || '';
     this.awsS3BucketName = process.env.AWS_S3_BUCKET_NAME || '';
     this.awsS3BucketUrl = process.env.AWS_S3_BUCKET_URL || '';
-  }
 
-  uploadImageToBucket = async (userId: string, recipeId: string, thumbnailImage: Buffer, largeImage: Buffer) => {
-    // 1. Create an S3 client.
-    const client = new S3Client({
+    // Initialize S3 client once
+    this.s3Client = new S3Client({
       region: this.awsRegion,
       credentials: {
         accessKeyId: this.awsAccessKeyId,
         secretAccessKey: this.awsSecretAccessKey,
       },
     });
+  }
 
-    // 2. Create the file path
+  uploadImageToBucket = async (userId: string, recipeId: string, thumbnailImage: Buffer, largeImage: Buffer) => {
+    // 1. Create the file path
     const thumbnailKey = `${userId}/${recipeId}/thumbnail.jpg`;
     const largeKey = `${userId}/${recipeId}/large.jpg`;
 
@@ -45,8 +46,8 @@ export class S3Service {
     });
 
     try {
-      await client.send(thumbnailCommand);
-      await client.send(largeCommand);
+      await this.s3Client.send(thumbnailCommand);
+      await this.s3Client.send(largeCommand);
 
       const thumbnailImageUrl = `https://${this.awsS3BucketName}.s3.${this.awsRegion}.amazonaws.com/${thumbnailKey}`;
       const largeImageUrl = `https://${this.awsS3BucketName}.s3.${this.awsRegion}.amazonaws.com/${largeKey}`;
@@ -65,18 +66,10 @@ export class S3Service {
   };
 
   deleteImage = async (imageURL: string) => {
-    const client = new S3Client({
-      region: this.awsRegion,
-      credentials: {
-        accessKeyId: this.awsAccessKeyId,
-        secretAccessKey: this.awsSecretAccessKey,
-      },
-    });
-
     const url = new URL(imageURL);
     const key = decodeURIComponent(url.pathname.substring(1));
     try {
-      await client.send(
+      await this.s3Client.send(
         new DeleteObjectCommand({
           Bucket: this.awsS3BucketName,
           Key: key,
