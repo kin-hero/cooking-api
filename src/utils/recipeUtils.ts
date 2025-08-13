@@ -65,7 +65,7 @@ export const processImagePipeline = async (
 };
 
 // Field processors for recipe data
-export const fieldProcessors: Record<string, (value: string) => any> = {
+const fieldProcessors: Record<string, (value: string) => any> = {
   title: (value: string) => value,
   description: (value: string) => value,
   ingredients: (value: string) => JSON.parse(value),
