@@ -3,6 +3,7 @@ import { AuthService } from '@/services/auth';
 import { JWTService } from '@/services/jwt';
 import { GoogleOAuthService } from '@/services/googleOAuth';
 import { findOrCreateGoogleUser } from '@/repositories/auth';
+import handleError from '@/utils/errorHandler';
 
 const authService = new AuthService();
 const jwtService = new JWTService();
@@ -29,16 +30,7 @@ export const registerUser = async (request: FastifyRequest<{ Body: RegisterReque
       },
     });
   } catch (error) {
-    if (error instanceof Error) {
-      return reply.status(400).send({
-        success: false,
-        error: error.message,
-      });
-    }
-    return reply.status(500).send({
-      success: false,
-      error: 'Internal server error',
-    });
+    return handleError(reply, error);
   }
 };
 
@@ -56,16 +48,7 @@ export const verifyUserEmail = async (request: FastifyRequest<{ Querystring: Ver
       message: "User's email address has been verified successfully",
     });
   } catch (error) {
-    if (error instanceof Error) {
-      return reply.status(400).send({
-        success: false,
-        error: error.message,
-      });
-    }
-    return reply.status(500).send({
-      success: false,
-      error: 'Internal server error',
-    });
+    return handleError(reply, error);
   }
 };
 
@@ -89,16 +72,7 @@ export const loginUser = async (request: FastifyRequest<{ Body: LoginRequestBody
       message: 'User has logged in successfully',
     });
   } catch (error) {
-    if (error instanceof Error) {
-      return reply.status(400).send({
-        success: false,
-        error: error.message,
-      });
-    }
-    return reply.status(500).send({
-      success: false,
-      error: 'Internal server error',
-    });
+    return handleError(reply, error);
   }
 };
 
@@ -121,10 +95,7 @@ export const logoutUser = async (reply: FastifyReply) => {
   } catch (error) {
     // Even logout errors should succeed to prevent UX issues
     console.error('Logout error:', error);
-    return reply.status(200).send({
-      success: true,
-      message: 'User has logged out successfully',
-    });
+    return handleError(reply, error);
   }
 };
 
@@ -134,10 +105,7 @@ export const initiateGoogleAuth = async (reply: FastifyReply) => {
     return reply.redirect(authURL);
   } catch (error) {
     console.error('Google OAuth initiation error:', error);
-    return reply.status(500).send({
-      success: false,
-      error: 'Failed to initiate Google authentication',
-    });
+    return handleError(reply, error);
   }
 };
 
