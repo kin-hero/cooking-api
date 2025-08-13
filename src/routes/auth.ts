@@ -10,10 +10,14 @@ import {
   initiateGoogleAuth,
   handleGoogleCallback,
 } from '@/controllers/auth';
+import { verifyEmailSchema } from '@/schema/auth/verifyEmail';
+import { registerSchema } from '@/schema/auth/register';
+import { loginSchema } from '@/schema/auth/login';
 
 const authRoutes: FastifyPluginAsync = async fastify => {
   fastify.post(
     '/register',
+    { schema: registerSchema },
     async (request: FastifyRequest<{ Body: RegisterRequestBody }>, reply) => {
       await registerUser(request, reply);
     }
@@ -21,6 +25,7 @@ const authRoutes: FastifyPluginAsync = async fastify => {
 
   fastify.get(
     '/verify-email',
+    { schema: verifyEmailSchema },
     async (
       request: FastifyRequest<{ Querystring: VerifyEmailQuery }>,
       reply
@@ -31,6 +36,7 @@ const authRoutes: FastifyPluginAsync = async fastify => {
 
   fastify.post(
     '/login',
+    { schema: loginSchema },
     async (request: FastifyRequest<{ Body: LoginRequestBody }>, reply) => {
       await loginUser(request, reply);
     }

@@ -21,15 +21,6 @@ export class AuthService {
   }
 
   async registerUser(email: string, password: string, displayName: string) {
-    // Validate input
-    if (!email || !password || !displayName) {
-      throw new Error('Email, password, and display name are required');
-    }
-
-    if (password.length < 6) {
-      throw new Error('Password must be at least 6 characters long');
-    }
-
     // Check if user already exists
     const existingUser = await findUserByEmail(email);
     if (existingUser?.google_id) {
@@ -53,9 +44,6 @@ export class AuthService {
   }
 
   async verifyUserEmailFromToken(token: string, email: string) {
-    if (!token) {
-      throw new Error('Verification Token is required');
-    }
     const currentTime = dayjs().toDate();
     const { emailFromDB, tokenTime } = await getUserVerificationTokenExpiredAtTime(email);
 
@@ -73,10 +61,6 @@ export class AuthService {
   }
 
   async loginUserCredentials(email: string, password: string) {
-    if (!email || !password) {
-      throw new Error('Email address or password are needed for login');
-    }
-
     const { isEmailVerified, passwordHash, displayName, userId } = await getUserData(email);
 
     // Check if user exists
