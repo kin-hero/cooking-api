@@ -1,5 +1,10 @@
-import { createRecipeWithImagesTransaction, fetchRecipesUsingOffsetAndLimit, saveRecipeWithoutImages } from '@/repositories/recipes';
-import { RecipeData } from '@/types/recipe';
+import {
+  createRecipeWithImagesTransaction,
+  fetchDetailRecipeFromDB,
+  fetchRecipesUsingOffsetAndLimit,
+  saveRecipeWithoutImages,
+} from '@/repositories/recipes';
+import { RecipeData, RecipeDetailData } from '@/types/recipe';
 
 export class RecipeService {
   createRecipeWithTransaction = async (
@@ -54,5 +59,25 @@ export class RecipeService {
       totalItems,
       hasMore,
     };
+  };
+
+  fetchDetailRecipe = async (recipeId: string): Promise<RecipeDetailData> => {
+    console.log('🚀 ~ RecipeService ~ recipeId:', recipeId);
+    const detailRecipe = await fetchDetailRecipeFromDB(recipeId);
+    const formattedDetailRecipe = {
+      id: detailRecipe.id,
+      title: detailRecipe.title,
+      description: detailRecipe.description,
+      ingredients: detailRecipe.ingredients,
+      instructions: detailRecipe.instructions,
+      prepTimeMinutes: detailRecipe.prep_time_minutes,
+      cookingTimeMinutes: detailRecipe.cooking_time_minutes,
+      servingSize: detailRecipe.serving_size,
+      imageUrl: detailRecipe.large_image_url,
+      recipeUpdatedAt: detailRecipe.updated_at,
+      authorName: detailRecipe.users_cooking.display_name,
+      authorAvatarUrl: detailRecipe.users_cooking.avatar_url,
+    };
+    return formattedDetailRecipe;
   };
 }
