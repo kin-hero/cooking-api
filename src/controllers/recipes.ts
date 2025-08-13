@@ -104,3 +104,40 @@ export const createRecipe = async (request: FastifyRequest, reply: FastifyReply)
     });
   }
 };
+
+interface RecipeAllRequest {
+  page: number;
+  limit: number;
+}
+export const getAllRecipes = async (request: FastifyRequest<{ Querystring: RecipeAllRequest }>, reply: FastifyReply) => {
+  try {
+    const { page, limit } = request.query;
+    if (limit > 20) {
+      throw new Error('The limit should be <=20');
+    }
+    if (page <= 0) {
+      throw new Error('The page should start from 1');
+    }
+    const { recipeData, totalItems, hasMore } = await recipeService.fetchAllRecipes(page, limit);
+    return reply.status(200).send({
+      success: true,
+      message: 'Recipe for the homepage has been fetched succesfully',
+      data: {
+        recipeData,
+        totalItems,
+        hasMore,
+      },
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      return reply.status(400).send({
+        success: false,
+        error: error.message,
+      });
+    }
+    return reply.status(500).send({
+      success: false,
+      error: 'Internal server error',
+    });
+  }
+};
