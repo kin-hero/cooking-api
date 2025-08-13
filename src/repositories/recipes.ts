@@ -186,3 +186,43 @@ export const deleteRecipeFromDB = async (
     deleteImageCallback(thumbnail_image_url, large_image_url);
   });
 };
+
+export const updateRecipeData = async (recipeId: string, userId: string, updateData: Record<string, any>) => {
+  return await prisma.recipes.update({
+    where: {
+      id: recipeId,
+      author_id: userId,
+    },
+    data: updateData,
+  });
+};
+
+export const updateRecipeWithImagesTransaction = async (
+  recipeId: string,
+  userId: string,
+  updateData: Record<string, any>,
+  imageProcessingCallback: (recipeId: string) => Promise<{ thumbnailImageUrl: string; largeImageUrl: string }>
+) => {
+  return await prisma.$transaction(async tx => {
+    const updatedRecipe = await tx.recipes.update({
+      where: {
+        id: recipeId,
+        author_id: userId,
+      },
+      data: updateData,
+      select: {
+        id: true,
+      },
+    });
+
+    const { thumbnailImageUrl, largeImageUrl } = await imageProcessingCallback(updatedRecipe.id);
+
+    await tx.recipes.update({
+      where: { id: updatedRecipe.id },
+      data: {
+        thumbnail_image_url: thumbnailImageUrl,
+        large_image_url: largeImageUrl,
+      },
+    });
+  });
+};
