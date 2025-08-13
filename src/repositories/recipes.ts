@@ -110,7 +110,6 @@ export const fetchRecipesUsingOffsetAndLimit = async (offset: number, limit: num
 };
 
 export const fetchDetailRecipeFromDB = async (recipeId: string) => {
-  console.log('🚀 ~ fetchDetailRecipeFromDB ~ recipeId:', recipeId);
   const detailRecipe = await prisma.recipes.findFirst({
     where: { id: recipeId },
     select: {

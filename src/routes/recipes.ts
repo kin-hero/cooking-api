@@ -1,7 +1,8 @@
 import { FastifyPluginAsync, FastifyRequest } from 'fastify';
 import authenticateToken from '@/middleware/auth';
-import { createRecipe, getAllRecipes, RecipeAllRequest } from '@/controllers/recipes';
+import { createRecipe, getAllRecipes, getDetailRecipe, RecipeAllRequest, RecipeDetailParams } from '@/controllers/recipes';
 import { getAllRecipesSchema } from '@/schema/recipes/getAll';
+import { getRecipeByIdSchema } from '@/schema/recipes/getById';
 
 const recipeRoutes: FastifyPluginAsync = async fastify => {
   // Public routes (no auth required)
@@ -15,8 +16,8 @@ const recipeRoutes: FastifyPluginAsync = async fastify => {
     }
   );
 
-  fastify.get('/:id', async (_request, _reply) => {
-    return { success: true, message: 'Get recipe by ID - TODO' };
+  fastify.get('/:id', { schema: getRecipeByIdSchema }, async (request: FastifyRequest<{ Params: RecipeDetailParams }>, reply) => {
+    await getDetailRecipe(request, reply);
   });
 
   // Protected routes (auth required)
