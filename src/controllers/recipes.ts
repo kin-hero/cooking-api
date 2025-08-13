@@ -4,6 +4,7 @@ import { AuthenticatedRequest } from '@/middleware/auth';
 import { ImageService } from '@/services/imageService';
 import { S3Service } from '@/services/S3Service';
 import { MultipartFile } from '@fastify/multipart';
+import handleError from '@/utils/errorHandler';
 
 // Type-safe interface for multipart file with buffer
 interface EnhancedMultipartFile extends MultipartFile {
@@ -92,16 +93,7 @@ export const createRecipe = async (request: FastifyRequest, reply: FastifyReply)
       message: 'Recipe has been created successfully',
     });
   } catch (error) {
-    if (error instanceof Error) {
-      return reply.status(400).send({
-        success: false,
-        error: error.message,
-      });
-    }
-    return reply.status(500).send({
-      success: false,
-      error: 'Internal server error',
-    });
+    return handleError(reply, error);
   }
 };
 
@@ -130,15 +122,6 @@ export const getAllRecipes = async (request: FastifyRequest<{ Querystring: Recip
       },
     });
   } catch (error) {
-    if (error instanceof Error) {
-      return reply.status(400).send({
-        success: false,
-        error: error.message,
-      });
-    }
-    return reply.status(500).send({
-      success: false,
-      error: 'Internal server error',
-    });
+    return handleError(reply, error);
   }
 };
