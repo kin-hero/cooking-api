@@ -1,5 +1,6 @@
 import {
   createRecipeWithImagesTransaction,
+  deleteRecipeFromDB,
   fetchDetailRecipeFromDB,
   fetchRecipesPerAuthorFromDB,
   fetchRecipesUsingOffsetAndLimit,
@@ -101,5 +102,12 @@ export class RecipeService {
       totalItems,
       hasMore,
     };
+  };
+  removeRecipe = async (
+    recipeId: string,
+    userId: string,
+    deleteImageCallback: (thummbnailImageUrl: string | null, largeImageUrl: string | null) => Promise<void>
+  ) => {
+    await deleteRecipeFromDB(recipeId, userId, deleteImageCallback);
   };
 }
