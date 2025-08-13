@@ -104,3 +104,41 @@ export const createRecipe = async (request: FastifyRequest, reply: FastifyReply)
     });
   }
 };
+
+export interface RecipeAllRequest {
+  page: number;
+  limit: number;
+}
+export const getAllRecipes = async (request: FastifyRequest<{ Querystring: RecipeAllRequest }>, reply: FastifyReply) => {
+  try {
+    const page = parseInt(request.query.page?.toString() || '1', 10);
+    const limit = parseInt(request.query.limit?.toString() || '10', 10);
+    if (isNaN(page) || page < 1) {
+      throw new Error('Page must be a positive integer starting from 1');
+    }
+    if (isNaN(limit) || limit < 1 || limit > 20) {
+      throw new Error('Limit must be between 1 and 20');
+    }
+    const { recipeData, totalItems, hasMore } = await recipeService.fetchAllRecipes(page, limit);
+    return reply.status(200).send({
+      success: true,
+      message: 'Recipe for the homepage has been fetched successfully',
+      data: {
+        recipeData,
+        totalItems,
+        hasMore,
+      },
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      return reply.status(400).send({
+        success: false,
+        error: error.message,
+      });
+    }
+    return reply.status(500).send({
+      success: false,
+      error: 'Internal server error',
+    });
+  }
+};
