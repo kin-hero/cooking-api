@@ -165,3 +165,24 @@ export const fetchRecipesPerAuthorFromDB = async (userId: string, offset: number
     totalItems: publishedRecipesCount,
   };
 };
+
+export const deleteRecipeFromDB = async (
+  recipeId: string,
+  userId: string,
+  deleteImageCallback: (thummbnailImageUrl: string | null, largeImageUrl: string | null) => Promise<void>
+) => {
+  return await prisma.$transaction(async tx => {
+    const deleteRecipe = await tx.recipes.delete({
+      where: {
+        author_id: userId,
+        id: recipeId,
+      },
+      select: {
+        thumbnail_image_url: true,
+        large_image_url: true,
+      },
+    });
+    const { thumbnail_image_url, large_image_url } = deleteRecipe;
+    deleteImageCallback(thumbnail_image_url, large_image_url);
+  });
+};
