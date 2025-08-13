@@ -63,6 +63,10 @@ const recipeDetailSchema = {
       format: 'uri',
       description: 'Author avatar image URL',
     },
+    isOwner: {
+      type: 'boolean',
+      description: 'Is recipe belong to author or not',
+    },
   },
   required: [
     'id',
@@ -77,6 +81,7 @@ const recipeDetailSchema = {
     'recipeUpdatedAt',
     'authorName',
     'authorAvatarUrl',
+    'isOwner',
   ],
   additionalProperties: false,
 } as const;
