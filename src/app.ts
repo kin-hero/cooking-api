@@ -10,7 +10,6 @@ import cookie from '@fastify/cookie';
 import authRoutes from '@/routes/auth';
 import recipeRoutes from '@/routes/recipes';
 import userRoutes from '@/routes/users';
-import categoryRoutes from '@/routes/categories';
 
 // Load environment variables
 dotenv.config();
@@ -18,6 +17,10 @@ dotenv.config();
 const fastify = Fastify({
   logger: {
     level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
+  },
+  schemaErrorFormatter: (errors, dataVar) => {
+    const error = errors[0];
+    return new Error(`Invalid ${dataVar}: ${error.instancePath.replace('/', '') || error.schemaPath.split('/').pop()} ${error.message}`);
   },
 });
 
@@ -67,7 +70,6 @@ const startServer = async () => {
     await fastify.register(authRoutes, { prefix: '/api/auth' });
     await fastify.register(recipeRoutes, { prefix: '/api/recipes' });
     await fastify.register(userRoutes, { prefix: '/api/users' });
-    await fastify.register(categoryRoutes, { prefix: '/api/categories' });
 
     // 404 handler
     fastify.setNotFoundHandler((request, reply) => {
@@ -81,16 +83,16 @@ const startServer = async () => {
     fastify.setErrorHandler((error, request, reply) => {
       fastify.log.error(error);
 
-      // Handle different error types
+      // Handle schema validation errors
       if (error.validation) {
         reply.code(400).send({
           success: false,
-          error: 'Validation error',
-          details: error.validation,
+          error: `Invalid ${error.validationContext}: ${error.message}`,
         });
         return;
       }
 
+      // Handle other HTTP errors
       const statusCode = error.statusCode || 500;
       const message = process.env.NODE_ENV === 'production' && statusCode >= 500 ? 'Internal Server Error' : error.message;
 
