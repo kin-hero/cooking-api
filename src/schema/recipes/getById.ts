@@ -44,50 +44,24 @@ const recipeDetailSchema = {
       minimum: 1,
       description: 'Number of servings',
     },
-    thumbnailImageUrl: {
-      type: ['string', 'null'],
-      format: 'uri',
-      description: 'Recipe thumbnail image URL',
-    },
-    largeImageUrl: {
+    imageUrl: {
       type: ['string', 'null'],
       format: 'uri',
       description: 'Recipe large image URL',
     },
-    isPublished: {
-      type: 'boolean',
-      description: 'Whether recipe is published',
-    },
-    createdAt: {
-      type: 'string',
-      format: 'date-time',
-      description: 'Recipe creation timestamp',
-    },
-    updatedAt: {
+    recipeUpdatedAt: {
       type: 'string',
       format: 'date-time',
       description: 'Recipe last update timestamp',
     },
-    author: {
-      type: 'object',
-      properties: {
-        id: {
-          type: 'string',
-          format: 'uuid',
-          description: 'Author unique identifier',
-        },
-        displayName: {
-          type: 'string',
-          description: 'Author display name',
-        },
-        avatarUrl: {
-          type: ['string', 'null'],
-          format: 'uri',
-          description: 'Author avatar image URL',
-        },
-      },
-      required: ['id', 'displayName', 'avatarUrl'],
-      additionalProperties: false,
+    authorName: {
+      type: 'string',
+      description: 'Author display name',
+    },
+    authorAvatarUrl: {
+      type: ['string', 'null'],
+      format: 'uri',
+      description: 'Author avatar image URL',
     },
   },
   required: [
@@ -99,17 +73,15 @@ const recipeDetailSchema = {
     'prepTimeMinutes',
     'cookingTimeMinutes',
     'servingSize',
-    'thumbnailImageUrl',
-    'largeImageUrl',
-    'isPublished',
-    'createdAt',
-    'updatedAt',
-    'author',
+    'imageUrl',
+    'recipeUpdatedAt',
+    'authorName',
+    'authorAvatarUrl',
   ],
   additionalProperties: false,
 } as const;
 
-export const getRecipeByIdSchema: FastifySchema = {
+export const getRecipeByIdSchema = {
   params: {
     type: 'object',
     properties: {
@@ -129,11 +101,18 @@ export const getRecipeByIdSchema: FastifySchema = {
       properties: {
         success: { type: 'boolean', const: true },
         message: { type: 'string' },
-        data: recipeDetailSchema,
+        data: {
+          type: 'object',
+          properties: {
+            recipeDetailData: recipeDetailSchema,
+          },
+          required: ['recipeDetailData'],
+          additionalProperties: false,
+        },
       },
       required: ['success', 'message', 'data'],
       additionalProperties: false,
       description: 'Successful response with recipe details',
     },
   },
-} as const;
+} as const satisfies FastifySchema;

@@ -50,7 +50,7 @@ const recipeItemSchema = {
   additionalProperties: false,
 } as const;
 
-export const getAllRecipesSchema: FastifySchema = {
+export const getAllRecipesSchema = {
   querystring: paginationQuerySchema,
   response: {
     200: {
@@ -77,4 +77,4 @@ export const getAllRecipesSchema: FastifySchema = {
       description: 'Successful response with recipe list',
     },
   },
-} as const;
+} as const satisfies FastifySchema;
