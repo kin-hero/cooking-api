@@ -165,3 +165,12 @@ export const fetchRecipesPerAuthorFromDB = async (userId: string, offset: number
     totalItems: publishedRecipesCount,
   };
 };
+
+export const deleteRecipeFromDB = async (recipeId: string, userId: string) => {
+  await prisma.recipes.delete({
+    where: {
+      author_id: userId,
+      id: recipeId,
+    },
+  });
+};
