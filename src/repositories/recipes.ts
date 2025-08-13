@@ -171,16 +171,18 @@ export const deleteRecipeFromDB = async (
   userId: string,
   deleteImageCallback: (thummbnailImageUrl: string | null, largeImageUrl: string | null) => Promise<void>
 ) => {
-  const deleteRecipe = await prisma.recipes.delete({
-    where: {
-      author_id: userId,
-      id: recipeId,
-    },
-    select: {
-      thumbnail_image_url: true,
-      large_image_url: true,
-    },
+  return await prisma.$transaction(async tx => {
+    const deleteRecipe = await tx.recipes.delete({
+      where: {
+        author_id: userId,
+        id: recipeId,
+      },
+      select: {
+        thumbnail_image_url: true,
+        large_image_url: true,
+      },
+    });
+    const { thumbnail_image_url, large_image_url } = deleteRecipe;
+    deleteImageCallback(thumbnail_image_url, large_image_url);
   });
-  const { thumbnail_image_url, large_image_url } = deleteRecipe;
-  deleteImageCallback(thumbnail_image_url, large_image_url);
 };
