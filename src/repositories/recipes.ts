@@ -108,3 +108,32 @@ export const fetchRecipesUsingOffsetAndLimit = async (offset: number, limit: num
     totalItems: publishedRecipesCount,
   };
 };
+
+export const fetchDetailRecipeFromDB = async (recipeId: string) => {
+  console.log('🚀 ~ fetchDetailRecipeFromDB ~ recipeId:', recipeId);
+  const detailRecipe = await prisma.recipes.findFirst({
+    where: { id: recipeId },
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      ingredients: true,
+      instructions: true,
+      prep_time_minutes: true,
+      cooking_time_minutes: true,
+      serving_size: true,
+      large_image_url: true,
+      updated_at: true,
+      users_cooking: {
+        select: {
+          display_name: true,
+          avatar_url: true,
+        },
+      },
+    },
+  });
+  if (!detailRecipe) {
+    throw new Error('This reciped does not exist');
+  }
+  return detailRecipe;
+};
