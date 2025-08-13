@@ -5,6 +5,8 @@ import {
   fetchRecipesPerAuthorFromDB,
   fetchRecipesUsingOffsetAndLimit,
   saveRecipeWithoutImages,
+  updateRecipeData,
+  updateRecipeWithImagesTransaction,
 } from '@/repositories/recipes';
 import { RecipeData, RecipeDetailData, RecipeWithoutAuthorData } from '@/types/recipe';
 
@@ -109,5 +111,45 @@ export class RecipeService {
     deleteImageCallback: (thummbnailImageUrl: string | null, largeImageUrl: string | null) => Promise<void>
   ) => {
     await deleteRecipeFromDB(recipeId, userId, deleteImageCallback);
+  };
+
+  private mapUpdateFields(updateFields: Record<string, any>): Record<string, any> {
+    const updateData: Record<string, any> = {};
+    const fieldMapping: Record<string, string> = {
+      title: 'title',
+      description: 'description',
+      ingredients: 'ingredients',
+      instructions: 'instructions',
+      prepTimeMinutes: 'prep_time_minutes',
+      cookingTimeMinutes: 'cooking_time_minutes',
+      servingSize: 'serving_size',
+      isPublished: 'is_published',
+    };
+
+    Object.entries(updateFields).forEach(([frontendFieldName, value]) => {
+      const dbFieldName = fieldMapping[frontendFieldName];
+      if (dbFieldName) {
+        updateData[dbFieldName] = value;
+      }
+    });
+
+    updateData.updated_at = new Date();
+    return updateData;
+  }
+
+  updateRecipeWithoutImage = async (recipeId: string, userId: string, updateFields: Record<string, any>) => {
+    const updateData = this.mapUpdateFields(updateFields);
+
+    await updateRecipeData(recipeId, userId, updateData);
+  };
+
+  updateRecipeWithTransaction = async (
+    recipeId: string,
+    userId: string,
+    updateFields: Record<string, any>,
+    imageProcessingCallback: (recipeId: string) => Promise<{ thumbnailImageUrl: string; largeImageUrl: string }>
+  ) => {
+    const updateData = this.mapUpdateFields(updateFields);
+    await updateRecipeWithImagesTransaction(recipeId, userId, updateData, imageProcessingCallback);
   };
 }
