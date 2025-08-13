@@ -123,6 +123,7 @@ export const fetchDetailRecipeFromDB = async (recipeId: string) => {
       serving_size: true,
       large_image_url: true,
       updated_at: true,
+      author_id: true,
       users_cooking: {
         select: {
           display_name: true,
