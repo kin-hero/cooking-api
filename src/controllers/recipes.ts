@@ -118,3 +118,23 @@ export const getAllRecipes = async (request: FastifyRequest<{ Querystring: Recip
     return handleError(reply, error);
   }
 };
+
+export interface RecipeDetailParams {
+  id: string;
+}
+
+export const getDetailRecipe = async (request: FastifyRequest<{ Params: RecipeDetailParams }>, reply: FastifyReply) => {
+  try {
+    const { id } = request.params;
+    const recipeDetailData = await recipeService.fetchDetailRecipe(id);
+    return reply.status(200).send({
+      success: true,
+      message: 'Recipe detail has been fetched successfully',
+      data: {
+        recipeDetailData,
+      },
+    });
+  } catch (error) {
+    return handleError(reply, error);
+  }
+};

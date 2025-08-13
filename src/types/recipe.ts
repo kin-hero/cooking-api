@@ -14,3 +14,18 @@ export interface RecipeData {
   totalItems: number;
   hasMore: boolean;
 }
+
+export interface RecipeDetailData {
+  id: string;
+  title: string;
+  description: string;
+  ingredients: string[];
+  instructions: string[];
+  prepTimeMinutes: number;
+  cookingTimeMinutes: number;
+  servingSize: number;
+  imageUrl: string | null;
+  recipeUpdatedAt: Date;
+  authorName: string;
+  authorAvatarUrl: string | null;
+}
