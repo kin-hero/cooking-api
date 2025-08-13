@@ -1,4 +1,4 @@
-import { PutObjectCommand, S3Client, S3ServiceException } from '@aws-sdk/client-s3';
+import { PutObjectCommand, S3Client, S3ServiceException, DeleteObjectCommand } from '@aws-sdk/client-s3';
 
 export class S3Service {
   private awsAccessKeyId: string;
@@ -60,6 +60,30 @@ export class S3Service {
       } else {
         console.error('An unexpected error occurred:', error);
       }
+      throw error;
+    }
+  };
+
+  deleteImage = async (imageURL: string) => {
+    const client = new S3Client({
+      region: this.awsRegion,
+      credentials: {
+        accessKeyId: this.awsAccessKeyId,
+        secretAccessKey: this.awsSecretAccessKey,
+      },
+    });
+
+    const url = new URL(imageURL);
+    const key = decodeURIComponent(url.pathname.substring(1));
+    try {
+      await client.send(
+        new DeleteObjectCommand({
+          Bucket: this.awsS3BucketName,
+          Key: key,
+        })
+      );
+    } catch (error) {
+      console.error('Error deleting object:', error);
       throw error;
     }
   };

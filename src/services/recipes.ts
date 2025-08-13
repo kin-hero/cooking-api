@@ -103,7 +103,11 @@ export class RecipeService {
       hasMore,
     };
   };
-  removeRecipe = async (recipeId: string, userId: string): Promise<void> => {
-    await deleteRecipeFromDB(recipeId, userId);
+  removeRecipe = async (
+    recipeId: string,
+    userId: string,
+    deleteImageCallback: (thummbnailImageUrl: string | null, largeImageUrl: string | null) => Promise<void>
+  ) => {
+    await deleteRecipeFromDB(recipeId, userId, deleteImageCallback);
   };
 }
