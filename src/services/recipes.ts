@@ -6,6 +6,7 @@ import {
   fetchRecipesUsingOffsetAndLimit,
   saveRecipeWithoutImages,
   updateRecipeData,
+  updateRecipeWithImagesTransaction,
 } from '@/repositories/recipes';
 import { RecipeData, RecipeDetailData, RecipeWithoutAuthorData } from '@/types/recipe';
 
@@ -111,8 +112,9 @@ export class RecipeService {
   ) => {
     await deleteRecipeFromDB(recipeId, userId, deleteImageCallback);
   };
-  updateRecipeWithoutImage = async (recipeId: string, userId: string, updateFields: Record<string, any>) => {
-    // Map frontend field names to database column names
+
+  private mapUpdateFields(updateFields: Record<string, any>): Record<string, any> {
+    const updateData: Record<string, any> = {};
     const fieldMapping: Record<string, string> = {
       title: 'title',
       description: 'description',
@@ -124,9 +126,6 @@ export class RecipeService {
       isPublished: 'is_published',
     };
 
-    // Build the data object with mapped field names
-    const updateData: Record<string, any> = {};
-
     Object.entries(updateFields).forEach(([frontendFieldName, value]) => {
       const dbFieldName = fieldMapping[frontendFieldName];
       if (dbFieldName) {
@@ -135,6 +134,22 @@ export class RecipeService {
     });
 
     updateData.updated_at = new Date();
+    return updateData;
+  }
+
+  updateRecipeWithoutImage = async (recipeId: string, userId: string, updateFields: Record<string, any>) => {
+    const updateData = this.mapUpdateFields(updateFields);
+
     await updateRecipeData(recipeId, userId, updateData);
+  };
+
+  updateRecipeWithTransaction = async (
+    recipeId: string,
+    userId: string,
+    updateFields: Record<string, any>,
+    imageProcessingCallback: (recipeId: string) => Promise<{ thumbnailImageUrl: string; largeImageUrl: string }>
+  ) => {
+    const updateData = this.mapUpdateFields(updateFields);
+    await updateRecipeWithImagesTransaction(recipeId, userId, updateData, imageProcessingCallback);
   };
 }
