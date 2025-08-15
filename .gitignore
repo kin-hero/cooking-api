@@ -103,6 +103,7 @@ dist
 
 # Serverless directories
 .serverless/
+serverless.yml
 
 # FuseBox cache
 .fusebox/
@@ -144,7 +145,7 @@ prisma/migrations/
 
 # Uploads
 uploads/
-public/uploads/
+public/uploads/gi
 
 # Docker
 .dockerignore
@@ -157,5 +158,3 @@ playwright/.cache/
 # Learning Examples
 learning-examples/
 
-# Deployment
-serverless.yml
