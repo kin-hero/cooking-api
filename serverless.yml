@@ -1,0 +1,48 @@
+service: cooking-api
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: ap-northeast-3
+  stage: ${opt:stage, 'dev'}
+  profile: private-account
+  environment:
+    NODE_ENV: ${opt:stage, 'dev'}
+    PORT: ${env:PORT, '3000'}
+    DATABASE_URL: ${env:DATABASE_URL, ''}
+    DIRECT_URL: ${env:DIRECT_URL, ''}
+    JWT_SECRET: ${env:JWT_SECRET, 'your-fallback-jwt-secret'}
+    JWT_EXPIRES_IN: ${env:JWT_EXPIRES_IN, '7d'}
+    GOOGLE_CLIENT_ID: ${env:GOOGLE_CLIENT_ID, ''}
+    GOOGLE_CLIENT_SECRET: ${env:GOOGLE_CLIENT_SECRET, ''}
+    GOOGLE_CALLBACK_URL: ${env:GOOGLE_CALLBACK_URL, ''}
+    AWS_ACCESS_KEY_ID: ${env:AWS_ACCESS_KEY_ID, ''}
+    AWS_SECRET_ACCESS_KEY: ${env:AWS_SECRET_ACCESS_KEY, ''}
+    AWS_REGION: ap-northeast-3
+    AWS_S3_BUCKET_NAME: ${env:AWS_S3_BUCKET_NAME, ''}
+    AWS_S3_BUCKET_URL: ${env:AWS_S3_BUCKET_URL, ''}
+    CORS_ORIGIN: ${env:CORS_ORIGIN, 'http://localhost:3000'}
+    SUPABASE_URL: ${env:SUPABASE_URL, ''}
+    SUPABASE_SERVICE_KEY: ${env:SUPABASE_SERVICE_KEY, ''}
+
+functions:
+  app:
+    handler: dist/src/lambda.handler
+    events:
+      - httpApi:
+          path: /{proxy+}
+          method: ANY
+      - httpApi:
+          path: /
+          method: ANY
+    timeout: 30
+    memorySize: 512
+
+plugins:
+  - serverless-dotenv-plugin
+  - serverless-offline
+
+custom:
+  serverless-offline:
+    httpPort: 3001
+    stage: dev
