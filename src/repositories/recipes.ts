@@ -15,36 +15,41 @@ export const createRecipeWithImagesTransaction = async (
   },
   imageProcessingCallback: (recipeId: string) => Promise<{ thumbnailImageUrl: string; largeImageUrl: string }>
 ) => {
-  return await prisma.$transaction(async tx => {
-    // 1. Create recipe in transaction
-    const recipe = await tx.recipes.create({
-      data: {
-        title: recipeData.title,
-        description: recipeData.description,
-        ingredients: recipeData.ingredients,
-        instructions: recipeData.instructions,
-        prep_time_minutes: recipeData.prepTimeMinutes,
-        cooking_time_minutes: recipeData.cookingTimeMinutes,
-        serving_size: recipeData.servingSize,
-        is_published: recipeData.isPublished,
-        author_id: recipeData.userId,
-      },
-    });
+  return await prisma.$transaction(
+    async tx => {
+      // 1. Create recipe in transaction
+      const recipe = await tx.recipes.create({
+        data: {
+          title: recipeData.title,
+          description: recipeData.description,
+          ingredients: recipeData.ingredients,
+          instructions: recipeData.instructions,
+          prep_time_minutes: recipeData.prepTimeMinutes,
+          cooking_time_minutes: recipeData.cookingTimeMinutes,
+          serving_size: recipeData.servingSize,
+          is_published: recipeData.isPublished,
+          author_id: recipeData.userId,
+        },
+      });
 
-    // 2. Process images (callback handles external operations)
-    const { thumbnailImageUrl, largeImageUrl } = await imageProcessingCallback(recipe.id);
+      // 2. Process images (callback handles external operations)
+      const { thumbnailImageUrl, largeImageUrl } = await imageProcessingCallback(recipe.id);
 
-    // 3. Update with image URLs in same transaction
-    await tx.recipes.update({
-      where: { id: recipe.id },
-      data: {
-        thumbnail_image_url: thumbnailImageUrl,
-        large_image_url: largeImageUrl,
-      },
-    });
+      // 3. Update with image URLs in same transaction
+      await tx.recipes.update({
+        where: { id: recipe.id },
+        data: {
+          thumbnail_image_url: thumbnailImageUrl,
+          large_image_url: largeImageUrl,
+        },
+      });
 
-    return recipe;
-  });
+      return recipe;
+    },
+    {
+      timeout: 60000, // 60 seconds timeout for S3 operations
+    }
+  );
 };
 
 export const saveRecipeWithoutImages = async (recipeData: {
@@ -171,20 +176,25 @@ export const deleteRecipeFromDB = async (
   userId: string,
   deleteImageCallback: (thummbnailImageUrl: string | null, largeImageUrl: string | null) => Promise<void>
 ) => {
-  return await prisma.$transaction(async tx => {
-    const deleteRecipe = await tx.recipes.delete({
-      where: {
-        author_id: userId,
-        id: recipeId,
-      },
-      select: {
-        thumbnail_image_url: true,
-        large_image_url: true,
-      },
-    });
-    const { thumbnail_image_url, large_image_url } = deleteRecipe;
-    deleteImageCallback(thumbnail_image_url, large_image_url);
-  });
+  return await prisma.$transaction(
+    async tx => {
+      const deleteRecipe = await tx.recipes.delete({
+        where: {
+          author_id: userId,
+          id: recipeId,
+        },
+        select: {
+          thumbnail_image_url: true,
+          large_image_url: true,
+        },
+      });
+      const { thumbnail_image_url, large_image_url } = deleteRecipe;
+      await deleteImageCallback(thumbnail_image_url, large_image_url);
+    },
+    {
+      timeout: 60000, // 60 seconds timeout for S3 delete operations
+    }
+  );
 };
 
 export const updateRecipeData = async (recipeId: string, userId: string, updateData: Record<string, any>) => {
@@ -203,26 +213,31 @@ export const updateRecipeWithImagesTransaction = async (
   updateData: Record<string, any>,
   imageProcessingCallback: (recipeId: string) => Promise<{ thumbnailImageUrl: string; largeImageUrl: string }>
 ) => {
-  return await prisma.$transaction(async tx => {
-    const updatedRecipe = await tx.recipes.update({
-      where: {
-        id: recipeId,
-        author_id: userId,
-      },
-      data: updateData,
-      select: {
-        id: true,
-      },
-    });
+  return await prisma.$transaction(
+    async tx => {
+      const updatedRecipe = await tx.recipes.update({
+        where: {
+          id: recipeId,
+          author_id: userId,
+        },
+        data: updateData,
+        select: {
+          id: true,
+        },
+      });
 
-    const { thumbnailImageUrl, largeImageUrl } = await imageProcessingCallback(updatedRecipe.id);
+      const { thumbnailImageUrl, largeImageUrl } = await imageProcessingCallback(updatedRecipe.id);
 
-    await tx.recipes.update({
-      where: { id: updatedRecipe.id },
-      data: {
-        thumbnail_image_url: thumbnailImageUrl,
-        large_image_url: largeImageUrl,
-      },
-    });
-  });
+      await tx.recipes.update({
+        where: { id: updatedRecipe.id },
+        data: {
+          thumbnail_image_url: thumbnailImageUrl,
+          large_image_url: largeImageUrl,
+        },
+      });
+    },
+    {
+      timeout: 60000, // 60 seconds timeout for S3 operations
+    }
+  );
 };
