@@ -39,7 +39,6 @@ functions:
     memorySize: 512
 
 plugins:
-  - serverless-dotenv-plugin
   - serverless-offline
 
 custom:
