@@ -156,3 +156,6 @@ playwright/.cache/
 
 # Learning Examples
 learning-examples/
+
+# Deployment
+serverless.yml
