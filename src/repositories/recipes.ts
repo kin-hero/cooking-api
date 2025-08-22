@@ -13,7 +13,7 @@ export const createRecipeWithImagesTransaction = async (
     isPublished: boolean;
     userId: string;
   },
-  imageProcessingCallback: (recipeId: string) => Promise<{ thumbnailImageUrl: string; largeImageUrl: string }>
+  imageProcessingCallback: (recipeId: string) => Promise<{ thumbnailUrl: string; largeUrl: string }>
 ) => {
   return await prisma.$transaction(
     async tx => {
@@ -33,14 +33,14 @@ export const createRecipeWithImagesTransaction = async (
       });
 
       // 2. Process images (callback handles external operations)
-      const { thumbnailImageUrl, largeImageUrl } = await imageProcessingCallback(recipe.id);
+      const { thumbnailUrl, largeUrl } = await imageProcessingCallback(recipe.id);
 
       // 3. Update with image URLs in same transaction
       await tx.recipes.update({
         where: { id: recipe.id },
         data: {
-          thumbnail_image_url: thumbnailImageUrl,
-          large_image_url: largeImageUrl,
+          thumbnail_image_url: thumbnailUrl,
+          large_image_url: largeUrl,
         },
       });
 
@@ -211,7 +211,7 @@ export const updateRecipeWithImagesTransaction = async (
   recipeId: string,
   userId: string,
   updateData: Record<string, any>,
-  imageProcessingCallback: (recipeId: string) => Promise<{ thumbnailImageUrl: string; largeImageUrl: string }>
+  imageProcessingCallback: (recipeId: string) => Promise<{ thumbnailUrl: string; largeUrl: string }>
 ) => {
   return await prisma.$transaction(
     async tx => {
@@ -226,13 +226,13 @@ export const updateRecipeWithImagesTransaction = async (
         },
       });
 
-      const { thumbnailImageUrl, largeImageUrl } = await imageProcessingCallback(updatedRecipe.id);
+      const { thumbnailUrl, largeUrl } = await imageProcessingCallback(updatedRecipe.id);
 
       await tx.recipes.update({
         where: { id: updatedRecipe.id },
         data: {
-          thumbnail_image_url: thumbnailImageUrl,
-          large_image_url: largeImageUrl,
+          thumbnail_image_url: thumbnailUrl,
+          large_image_url: largeUrl,
         },
       });
     },
