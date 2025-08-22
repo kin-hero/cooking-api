@@ -39,14 +39,23 @@ export const processMultipartRequest = async (request: FastifyRequest): Promise<
   return { imageFile, formFields };
 };
 
+interface ImagePipeline {
+  userData: {
+    imageFile: EnhancedMultipartFile;
+    userId: string;
+    recipeId: string;
+  };
+  services: {
+    imageService: ImageService;
+    s3Service: S3Service;
+  };
+}
+
 // Utility function to process image pipeline
-export const processImagePipeline = async (
-  imageFile: EnhancedMultipartFile,
-  userId: string,
-  recipeId: string,
-  imageService: ImageService,
-  s3Service: S3Service
-): Promise<ImageProcessingResult> => {
+export const processImagePipeline = async (imagePipelineData: ImagePipeline): Promise<ImageProcessingResult> => {
+  const { userData, services } = imagePipelineData;
+  const { imageFile, userId, recipeId } = userData;
+  const { imageService, s3Service } = services;
   // 1. Validate image
   const imageBuffer = imageFile.buffer;
   const mimeType = imageFile.mimetype;
