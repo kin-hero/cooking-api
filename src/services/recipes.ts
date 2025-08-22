@@ -23,7 +23,7 @@ export class RecipeService {
       isPublished: boolean;
       userId: string;
     },
-    imageProcessingCallback: (recipeId: string) => Promise<{ thumbnailImageUrl: string; largeImageUrl: string }>
+    imageProcessingCallback: (recipeId: string) => Promise<{ thumbnailUrl: string; largeUrl: string }>
   ) => {
     return await createRecipeWithImagesTransaction(recipeData, imageProcessingCallback);
   };
@@ -139,7 +139,6 @@ export class RecipeService {
 
   updateRecipeWithoutImage = async (recipeId: string, userId: string, updateFields: Record<string, any>) => {
     const updateData = this.mapUpdateFields(updateFields);
-
     await updateRecipeData(recipeId, userId, updateData);
   };
 
@@ -147,7 +146,7 @@ export class RecipeService {
     recipeId: string,
     userId: string,
     updateFields: Record<string, any>,
-    imageProcessingCallback: (recipeId: string) => Promise<{ thumbnailImageUrl: string; largeImageUrl: string }>
+    imageProcessingCallback: (recipeId: string) => Promise<{ thumbnailUrl: string; largeUrl: string }>
   ) => {
     const updateData = this.mapUpdateFields(updateFields);
     await updateRecipeWithImagesTransaction(recipeId, userId, updateData, imageProcessingCallback);

@@ -1,7 +1,7 @@
 import { FastifyRequest } from 'fastify';
 import { MultipartFile } from '@fastify/multipart';
 import { ImageService } from '@/services/imageService';
-import { S3Service } from '@/services/S3Service';
+import { S3ImageService } from '@/services/s3/S3ImageService';
 
 // Type-safe interface for multipart file with buffer
 export interface EnhancedMultipartFile extends MultipartFile {
@@ -14,8 +14,8 @@ export interface ProcessedMultipartData {
 }
 
 export interface ImageProcessingResult {
-  thumbnailImageUrl: string;
-  largeImageUrl: string;
+  thumbnailUrl: string;
+  largeUrl: string;
 }
 
 // Utility function to process multipart request data
@@ -47,7 +47,7 @@ interface ImagePipeline {
   };
   services: {
     imageService: ImageService;
-    s3Service: S3Service;
+    s3ImageService: S3ImageService;
   };
 }
 
@@ -55,7 +55,7 @@ interface ImagePipeline {
 export const processImagePipeline = async (imagePipelineData: ImagePipeline): Promise<ImageProcessingResult> => {
   const { userData, services } = imagePipelineData;
   const { imageFile, userId, recipeId } = userData;
-  const { imageService, s3Service } = services;
+  const { imageService, s3ImageService } = services;
   // 1. Validate image
   const imageBuffer = imageFile.buffer;
   const mimeType = imageFile.mimetype;
@@ -68,9 +68,9 @@ export const processImagePipeline = async (imagePipelineData: ImagePipeline): Pr
   const imageLarge = await imageService.resizeImageLarge(imageBuffer);
 
   // 3. Upload to S3
-  const { thumbnailImageUrl, largeImageUrl } = await s3Service.uploadImageToBucket(userId, recipeId, imageThumbnail, imageLarge);
+  const { thumbnailUrl, largeUrl } = await s3ImageService.uploadRecipeImages(userId, recipeId, imageThumbnail, imageLarge);
 
-  return { thumbnailImageUrl, largeImageUrl };
+  return { thumbnailUrl, largeUrl };
 };
 
 // Field processors for recipe data
