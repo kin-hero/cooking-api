@@ -4,12 +4,7 @@ import { AuthenticatedRequest } from '@/middleware/auth';
 import { ImageService } from '@/services/imageService';
 import { S3Service } from '@/services/S3Service';
 import handleError from '@/utils/errorHandler';
-import {
-  processMultipartRequest,
-  processImagePipeline,
-  processFormFieldsForCreate,
-  processFormFieldsForUpdate,
-} from '@/utils/recipeUtils';
+import { processMultipartRequest, processImagePipeline, processFormFieldsForCreate, processFormFieldsForUpdate } from '@/utils/recipeUtils';
 
 const recipeService = new RecipeService();
 const imageService = new ImageService();
@@ -18,10 +13,10 @@ const s3Service = new S3Service();
 export const createRecipe = async (request: FastifyRequest, reply: FastifyReply) => {
   try {
     const userId = (request as AuthenticatedRequest).user.userId;
-    
+
     // Process multipart request data
     const { imageFile, formFields } = await processMultipartRequest(request);
-    
+
     // Process form fields for create operation
     const processedFields = processFormFieldsForCreate(formFields);
     const recipeData = {
@@ -39,7 +34,18 @@ export const createRecipe = async (request: FastifyRequest, reply: FastifyReply)
 
     // Use transactional approach with image processing callback
     await recipeService.createRecipeWithTransaction(recipeData, async (recipeId: string) => {
-      return await processImagePipeline(imageFile, userId, recipeId, imageService, s3Service);
+      const imagePipelineData = {
+        userData: {
+          imageFile,
+          userId,
+          recipeId,
+        },
+        services: {
+          imageService,
+          s3Service,
+        },
+      };
+      return await processImagePipeline(imagePipelineData);
     });
     return reply.status(201).send({
       success: true,
@@ -133,10 +139,10 @@ export const updateRecipe = async (request: FastifyRequest<{ Params: RecipeDetai
   try {
     const { id: recipeId } = request.params;
     const userId = (request as AuthenticatedRequest).user.userId;
-    
+
     // Process multipart request data
     const { imageFile, formFields } = await processMultipartRequest(request);
-    
+
     // Process form fields for update operation
     const updateFields = processFormFieldsForUpdate(formFields);
 
@@ -156,9 +162,20 @@ export const updateRecipe = async (request: FastifyRequest<{ Params: RecipeDetai
         message: 'Recipe has been updated successfully',
       });
     }
-    
+
     await recipeService.updateRecipeWithTransaction(recipeId, userId, updateFields, async (recipeId: string) => {
-      return await processImagePipeline(imageFile, userId, recipeId, imageService, s3Service);
+      const imagePipelineData = {
+        userData: {
+          imageFile,
+          userId,
+          recipeId,
+        },
+        services: {
+          imageService,
+          s3Service,
+        },
+      };
+      return await processImagePipeline(imagePipelineData);
     });
     return reply.status(200).send({
       success: true,
