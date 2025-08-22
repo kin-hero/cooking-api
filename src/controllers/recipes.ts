@@ -2,13 +2,13 @@ import { FastifyRequest, FastifyReply } from 'fastify';
 import { RecipeService } from '@/services/recipes';
 import { AuthenticatedRequest } from '@/middleware/auth';
 import { ImageService } from '@/services/imageService';
-import { S3Service } from '@/services/S3Service';
+import { S3ImageService } from '@/services/s3/S3ImageService';
 import handleError from '@/utils/errorHandler';
 import { processMultipartRequest, processImagePipeline, processFormFieldsForCreate, processFormFieldsForUpdate } from '@/utils/recipeUtils';
 
 const recipeService = new RecipeService();
 const imageService = new ImageService();
-const s3Service = new S3Service();
+const s3ImageService = new S3ImageService();
 
 export const createRecipe = async (request: FastifyRequest, reply: FastifyReply) => {
   try {
@@ -42,7 +42,7 @@ export const createRecipe = async (request: FastifyRequest, reply: FastifyReply)
         },
         services: {
           imageService,
-          s3Service,
+          s3ImageService,
         },
       };
       return await processImagePipeline(imagePipelineData);
@@ -123,8 +123,8 @@ export const deleteRecipe = async (request: FastifyRequest<{ Params: RecipeDetai
     const { id } = request.params;
     const userId = (request as AuthenticatedRequest).user.userId;
     await recipeService.removeRecipe(id, userId, async (thummbnailImageUrl: string | null, largeImageUrl: string | null) => {
-      thummbnailImageUrl ? await s3Service.deleteImage(thummbnailImageUrl) : null;
-      largeImageUrl ? await s3Service.deleteImage(largeImageUrl) : null;
+      thummbnailImageUrl ? await s3ImageService.deleteImageByUrl(thummbnailImageUrl) : null;
+      largeImageUrl ? await s3ImageService.deleteImageByUrl(largeImageUrl) : null;
     });
     return reply.status(200).send({
       success: true,
@@ -172,7 +172,7 @@ export const updateRecipe = async (request: FastifyRequest<{ Params: RecipeDetai
         },
         services: {
           imageService,
-          s3Service,
+          s3ImageService,
         },
       };
       return await processImagePipeline(imagePipelineData);
