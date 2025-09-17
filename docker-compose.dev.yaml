@@ -22,8 +22,7 @@ services:
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
       GOOGLE_CALLBACK_URL: ${GOOGLE_CALLBACK_URL}
-      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
-      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_PROFILE: ${AWS_PROFILE}
       AWS_REGION: ap-northeast-3
       AWS_S3_BUCKET_NAME: ${AWS_S3_BUCKET_NAME}
       AWS_S3_BUCKET_URL: ${AWS_S3_BUCKET_URL}
@@ -38,6 +37,8 @@ services:
       - ./tsconfig.json:/app/tsconfig.json:ro
       # Exclude node_modules from host (use container's version)
       - /app/node_modules
+      # Mount AWS credentials for container access
+      - ~/.aws:/root/.aws:ro
       # Using S3 for file storage - no local upload mount needed
     networks:
       - cooking-network
