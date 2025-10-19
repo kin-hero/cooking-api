@@ -66,7 +66,7 @@ export const getAllRecipesSchema = {
               items: recipeItemSchema,
               description: 'Array of recipe items',
             },
-            paginatedResponseDataSchema,
+            ...paginatedResponseDataSchema.properties,
           },
           required: ['recipeData', 'totalItems', 'hasMore'],
           additionalProperties: false,
