@@ -65,6 +65,7 @@ export const loginUser = async (request: FastifyRequest<{ Body: LoginRequestBody
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      path: '/', // Allow cookie to be sent to all routes
     });
 
     return reply.status(201).send({
@@ -141,6 +142,7 @@ export const handleGoogleCallback = async (
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      path: '/', // Allow cookie to be sent to all routes
     });
 
     // Log successful login
