@@ -4,10 +4,12 @@ export class S3Service {
   protected awsRegion: string; // accessible in subclasses
   protected awsS3BucketName: string; // accessible in subclasses
   private s3Client: S3Client | null = null; // lazy init, private to base class
+  protected awsCdnBaseUrl: string;
 
   constructor() {
     this.awsRegion = process.env.AWS_REGION || 'ap-northeast-3';
     this.awsS3BucketName = process.env.AWS_S3_BUCKET_NAME || '';
+    this.awsCdnBaseUrl = process.env.AWS_CDN_BASE_URL || '';
   }
 
   /** Lazy initialization of S3 client */
@@ -16,6 +18,14 @@ export class S3Service {
       this.s3Client = new S3Client({ region: this.awsRegion });
     }
     return this.s3Client;
+  }
+
+  /** Construct public URL for an S3 key - uses Cloudfront domain*/
+  protected constructPublicUrl(key: string): string {
+    if (this.awsCdnBaseUrl) {
+      return `${this.awsCdnBaseUrl}/${key}`;
+    }
+    return `https://${this.awsS3BucketName}.s3.${this.awsRegion}.amazonaws.com/${key}`;
   }
 
   /** Generic upload */
@@ -29,7 +39,7 @@ export class S3Service {
 
     try {
       await this.getS3Client().send(command);
-      return `https://${this.awsS3BucketName}.s3.${this.awsRegion}.amazonaws.com/${key}`;
+      return this.constructPublicUrl(key);
     } catch (error) {
       if (error instanceof S3ServiceException) {
         console.error(`S3 Error: ${error.name} - ${error.message}`);
