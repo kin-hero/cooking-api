@@ -14,7 +14,7 @@ export const paginationQuerySchema = {
       type: 'integer',
       minimum: 1,
       maximum: 20,
-      default: 20,
+      default: 6,
       description: 'Number of items per page (max 20)',
     },
   },
