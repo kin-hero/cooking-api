@@ -12,7 +12,7 @@ export class S3ImageService extends S3Service {
     return { thumbnailUrl, largeUrl };
   }
 
-  /** Delete image using full URL */
+  /** Delete image using full URL (handles both CDN and S3 URLs) */
   async deleteImageByUrl(imageUrl: string) {
     const url = new URL(imageUrl);
     const key = decodeURIComponent(url.pathname.substring(1));
