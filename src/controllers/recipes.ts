@@ -90,9 +90,7 @@ export const getDetailRecipe = async (request: FastifyRequest<{ Params: RecipeDe
     return reply.status(200).send({
       success: true,
       message: 'Recipe detail has been fetched successfully',
-      data: {
-        recipeDetailData,
-      },
+      data: recipeDetailData,
     });
   } catch (error) {
     return handleError(reply, error);
