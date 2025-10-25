@@ -27,7 +27,7 @@ const fastify = Fastify({
 const setupApp = async () => {
   // CORS plugin
   await fastify.register(cors, {
-    origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+    origin: process.env.CORS_ORIGIN || 'http://localhost:4000',
     credentials: true, //CRITICAL: Allows cookies in CORS requests
   });
 

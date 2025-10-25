@@ -106,14 +106,7 @@ export const getRecipeByIdSchema = {
       properties: {
         success: { type: 'boolean', const: true },
         message: { type: 'string' },
-        data: {
-          type: 'object',
-          properties: {
-            recipeDetailData: recipeDetailSchema,
-          },
-          required: ['recipeDetailData'],
-          additionalProperties: false,
-        },
+        data: recipeDetailSchema,
       },
       required: ['success', 'message', 'data'],
       additionalProperties: false,
