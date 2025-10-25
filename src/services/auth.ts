@@ -5,15 +5,18 @@ import {
   getUserVerificationTokenExpiredAtTime,
   verifyUserEmailAddress,
 } from '@/repositories/auth';
+import { EmailService } from './email';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import dayjs from 'dayjs';
 
 export class AuthService {
   private saltRounds: number;
+  private emailService: EmailService;
 
   constructor() {
     this.saltRounds = 12;
+    this.emailService = new EmailService();
   }
   private async encryptUserPassword(password: string) {
     const passwordHash = await bcrypt.hash(password, this.saltRounds);
@@ -40,6 +43,16 @@ export class AuthService {
 
     // Create user
     const user = await createUser(email, passwordHash, displayName, verificationToken, tomorrow);
+
+    // Send email verification link
+    const emailResult = await this.emailService.sendVerificationEmail(email, displayName, verificationToken);
+    if (emailResult.success) {
+      console.log(`Verification email sent successfully to ${email}`);
+    } else {
+      console.error(`Failed to send verification email to ${email}:`, emailResult.error);
+      // Note: We don't throw - user is already registered
+    }
+
     return user;
   }
 
