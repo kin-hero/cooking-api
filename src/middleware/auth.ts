@@ -39,10 +39,14 @@ export const authenticateToken = (request: FastifyRequest, reply: FastifyReply, 
 export const allowEmptyToken = (request: FastifyRequest, reply: FastifyReply, done: HookHandlerDoneFunction) => {
   const jwtService = new JWTService();
   const userToken = request.cookies.recipe_token_user;
+
   if (userToken) {
-    const decodedToken = jwtService.verifyAccessToken(userToken);
-    (request as AuthenticatedRequest).user = decodedToken;
-    done();
+    try {
+      const decodedToken = jwtService.verifyAccessToken(userToken);
+      (request as AuthenticatedRequest).user = decodedToken;
+    } catch (error) {
+      // Token verification failed - continue without user (this middleware allows empty tokens)
+    }
   }
   done();
 };
