@@ -45,7 +45,7 @@ export class RecipeService {
   fetchAllRecipes = async (page: number, limit: number): Promise<RecipeData> => {
     const offset = (page - 1) * limit;
     const { recipeData, totalItems } = await fetchRecipesUsingOffsetAndLimit(offset, limit);
-    const hasMore = page * limit <= totalItems;
+    const hasMore = page * limit < totalItems;
     const formattedRecipedData = recipeData.map(item => {
       return {
         recipeId: item.id,
