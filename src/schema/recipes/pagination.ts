@@ -37,3 +37,25 @@ export const paginatedResponseDataSchema = {
   required: ['totalItems', 'hasMore'],
   additionalProperties: true,
 } as const;
+
+export const paginatedAuthorResponseDataSchema = {
+  type: 'object',
+  properties: {
+    totalItems: {
+      type: 'integer',
+      minimum: 0,
+      description: 'Total number of items available',
+    },
+    draftItems: {
+      type: 'integer',
+      minimum: 0,
+      description: 'Total number of draft items available',
+    },
+    hasMore: {
+      type: 'boolean',
+      description: 'Whether there are more items available',
+    },
+  },
+  required: ['totalItems', 'hasMore', 'draftItems'],
+  additionalProperties: true,
+} as const;

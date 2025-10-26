@@ -152,6 +152,7 @@ export const fetchRecipesPerAuthorFromDB = async (userId: string, offset: number
       cooking_time_minutes: true,
       serving_size: true,
       thumbnail_image_url: true,
+      is_published: true,
     },
     where: {
       author_id: userId,
@@ -163,11 +164,13 @@ export const fetchRecipesPerAuthorFromDB = async (userId: string, offset: number
     take: limit,
   });
 
-  const publishedRecipesCount = await prisma.recipes.count({ where: { author_id: userId } });
+  const allRecipesCount = await prisma.recipes.count({ where: { author_id: userId } });
+  const draftRecipesCount = await prisma.recipes.count({ where: { author_id: userId, is_published: false } });
 
   return {
     recipeData,
-    totalItems: publishedRecipesCount,
+    totalItems: allRecipesCount,
+    draftItems: draftRecipesCount,
   };
 };
 

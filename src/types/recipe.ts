@@ -20,6 +20,7 @@ export interface RecipeData {
 export interface RecipeWithoutAuthorData {
   recipeData: RecipeDataWithoutAuthor[];
   totalItems: number;
+  draftItems: number;
   hasMore: boolean;
 }
 

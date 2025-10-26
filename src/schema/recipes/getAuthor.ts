@@ -2,7 +2,7 @@
  * Schema for GET /recipes/author - Get Author's Recipes endpoint
  */
 import { FastifySchema } from 'fastify';
-import { paginationQuerySchema, paginatedResponseDataSchema } from './pagination';
+import { paginationQuerySchema, paginatedAuthorResponseDataSchema } from './pagination';
 
 const authorRecipeItemSchema = {
   type: 'object',
@@ -36,8 +36,12 @@ const authorRecipeItemSchema = {
       format: 'uri',
       description: 'Recipe thumbnail image URL',
     },
+    isPublished: {
+      type: ['boolean'],
+      description: 'Recipe published status',
+    },
   },
-  required: ['recipeId', 'title', 'prepTimeMinutes', 'cookingTimeMinutes', 'servingSize', 'imageUrl'],
+  required: ['recipeId', 'title', 'prepTimeMinutes', 'cookingTimeMinutes', 'servingSize', 'imageUrl', 'isPublished'],
   additionalProperties: false,
 } as const;
 
@@ -58,9 +62,9 @@ export const getAuthorRecipesSchema: FastifySchema = {
               items: authorRecipeItemSchema,
               description: 'Array of author recipe items',
             },
-            ...paginatedResponseDataSchema.properties,
+            ...paginatedAuthorResponseDataSchema.properties,
           },
-          required: ['recipeData', 'totalItems', 'hasMore'],
+          required: ['recipeData', 'totalItems', 'hasMore', 'draftItems'],
           additionalProperties: false,
         },
       },

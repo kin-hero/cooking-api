@@ -101,7 +101,7 @@ export const getRecipesPerAuthor = async (request: FastifyRequest<{ Querystring:
   try {
     const { page, limit } = request.query;
     const userId = (request as AuthenticatedRequest).user.userId;
-    const { recipeData, totalItems, hasMore } = await recipeService.fetchRecipesPerAuthor(page, limit, userId);
+    const { recipeData, totalItems, hasMore, draftItems } = await recipeService.fetchRecipesPerAuthor(page, limit, userId);
     return reply.status(200).send({
       success: true,
       message: 'Author personal recipes have been fetched successfully',
@@ -109,6 +109,7 @@ export const getRecipesPerAuthor = async (request: FastifyRequest<{ Querystring:
         recipeData,
         totalItems,
         hasMore,
+        draftItems,
       },
     });
   } catch (error) {

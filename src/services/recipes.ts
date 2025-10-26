@@ -87,7 +87,7 @@ export class RecipeService {
 
   fetchRecipesPerAuthor = async (page: number, limit: number, userId: string): Promise<RecipeWithoutAuthorData> => {
     const offset = (page - 1) * limit;
-    const { recipeData, totalItems } = await fetchRecipesPerAuthorFromDB(userId, offset, limit);
+    const { recipeData, totalItems, draftItems } = await fetchRecipesPerAuthorFromDB(userId, offset, limit);
     const hasMore = page * limit <= totalItems;
     const formattedRecipedData = recipeData.map(item => {
       return {
@@ -97,11 +97,13 @@ export class RecipeService {
         cookingTimeMinutes: item.cooking_time_minutes,
         servingSize: item.serving_size,
         imageUrl: item.thumbnail_image_url,
+        isPublished: item.is_published,
       };
     });
     return {
       recipeData: formattedRecipedData,
       totalItems,
+      draftItems,
       hasMore,
     };
   };
