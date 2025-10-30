@@ -1,6 +1,6 @@
 # Recipify - Backend API
 
-[**Read Full Case Study**](https://keanesetiawan.com/projects/recipify)
+[**View Live Demo**](https://recipify.keanesetiawan.com/) | [**Read Full Case Study**](https://keanesetiawan.com/projects/recipify)
 
 A production-grade, cloud-native RESTful API built with Fastify, TypeScript, and AWS services. This backend powers the Recipify recipe-sharing platform, featuring dual runtime support (Node.js + AWS Lambda), transactional image processing with S3/CloudFront CDN, comprehensive authentication flows with JWT and OAuth, and clean layered architecture for maintainability and scalability.
 
