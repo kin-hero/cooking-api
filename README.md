@@ -21,7 +21,7 @@ A production-grade, cloud-native RESTful API built with Fastify, TypeScript, and
 | **Framework** | Fastify 4 (high-performance Node.js) |
 | **Language** | TypeScript (strict mode) |
 | **Database** | PostgreSQL + Prisma ORM |
-| **Authentication** | JWT + Google OAuth (via Supabase) |
+| **Authentication** | JWT + Google OAuth|
 | **AWS Services** | S3, CloudFront CDN, SES, Lambda |
 | **Image Processing** | Sharp (resize + optimization) |
 | **Email** | AWS SES (transactional emails) |
