@@ -29,8 +29,9 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.864.0",
+    "@aws-sdk/client-s3": "^3.917.0",
     "@aws-sdk/client-ses": "^3.917.0",
+    "@aws-sdk/credential-providers": "^3.916.0",
     "@fastify/aws-lambda": "^6.0.0",
     "@fastify/cookie": "^9.4.0",
     "@fastify/cors": "^8.4.2",
@@ -47,7 +48,7 @@
     "express": "^5.1.0",
     "fastify": "^4.24.3",
     "jsonwebtoken": "^9.0.2",
-    "sharp": "^0.34.3",
+    "sharp": "^0.34.4",
     "zod": "^3.22.4"
   },
   "devDependencies": {
@@ -69,7 +70,7 @@
     "ts-jest": "^29.1.1",
     "tsc-alias": "^1.8.16",
     "tsx": "^4.6.2",
-    "typescript": "^5.3.3",
+    "typescript": "^5.9.3",
     "typescript-eslint": "^8.39.0"
   },
   "engines": {
